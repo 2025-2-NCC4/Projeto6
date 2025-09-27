@@ -347,17 +347,15 @@ df_filtered = (
     else df
 )
 
-# Recalcula métricas com filtro
+# Valores com filtro
+
 valor_f = _to_numeric_br(df_filtered.get("valor_cupom")) if "valor_cupom" in df_filtered.columns else pd.Series(dtype=float)
 repasse_f = _to_numeric_br(df_filtered.get("repasse_picmoney")) if "repasse_picmoney" in df_filtered.columns else pd.Series(dtype=float)
 
 receita_total_f = float(np.nansum(valor_f)) if not valor_f.empty else 0.0
 receita_moneybr_f = float(np.nansum(repasse_f)) if not repasse_f.empty else 0.0
 cupons_capturados_f = int(len(df_filtered))
-ticket_medio_f = (receita_total_f / cupons_capturados_f) if cupons_capturados_f > 0 else 0.0
 receita_liquida_f = receita_total_f - receita_moneybr_f
-margem_operacional_f = (receita_liquida_f / receita_total_f) if receita_total_f > 0 else 0.0
-usuarios_ativos_f = int(df_filtered["celular"].nunique(dropna=True)) if "celular" in df_filtered.columns else 0
 
 if selected_stores is None or len(selected_stores) == 0 or len(selected_stores) == len(store_options):
     nome_loja_text = "Todas as lojas"
@@ -367,18 +365,21 @@ else:
     nome_loja_text = f"{len(selected_stores)} lojas"
 
 # Formatação
+
 receita_total_f_fmt = _fmt_currency_br(receita_total_f)
 receita_moneybr_f_fmt = _fmt_currency_br(receita_moneybr_f)
 receita_liquida_f_fmt = _fmt_currency_br(receita_liquida_f)
-ticket_medio_f_fmt = _fmt_currency_br(ticket_medio_f)
-margem_operacional_f_fmt = _fmt_pct(margem_operacional_f)
-usuarios_ativos_f_fmt = _fmt_int_br(usuarios_ativos_f)
 cupons_capturados_f_fmt = _fmt_int_br(cupons_capturados_f)
 
-# Grid com KPIs filtrados
+# KPIs filtrados
+
 st.markdown(
     f"""
 <div class="kpi-grid">
+<div class="kpi-card">
+<div class="kpi-header"><div class="kpi-title">Nome da loja</div><div class="kpi-icon-circle"><i class="fa-solid fa-store"></i></div></div>
+<div class="kpi-value">{nome_loja_text}</div>
+</div>
 <div class="kpi-card">
 <div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
 <div class="kpi-value">{receita_total_f_fmt}</div>
@@ -391,43 +392,21 @@ st.markdown(
 <div class="kpi-header"><div class="kpi-title">Receita líquida</div><div class="kpi-icon-circle"><i class="fa-solid fa-signal"></i></div></div>
 <div class="kpi-value">{receita_liquida_f_fmt}</div>
 </div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Ticket médio</div><div class="kpi-icon-circle"><i class="fa-solid fa-chart-line"></i></div></div>
-<div class="kpi-value">{ticket_medio_f_fmt}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Margem Operacional</div><div class="kpi-icon-circle"><i class="fa-solid fa-percent"></i></div></div>
-<div class="kpi-value">{margem_operacional_f_fmt}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Usuários ativos</div><div class="kpi-icon-circle"><i class="fa-solid fa-user-group"></i></div></div>
-<div class="kpi-value">{usuarios_ativos_f_fmt}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Nome da loja</div><div class="kpi-icon-circle"><i class="fa-solid fa-store"></i></div></div>
-<div class="kpi-value">{nome_loja_text}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Cupons capturados</div><div class="kpi-icon-circle"><i class="fa-solid fa-ticket"></i></div></div>
-<div class="kpi-value">{cupons_capturados_f_fmt}</div>
-</div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# ===================== Gráfico: Receita Money BR por dia (Julho) ===================== #
+# Gráficos
 
 if "data" in df_filtered.columns and "repasse_picmoney" in df_filtered.columns:
     data_dt = pd.to_datetime(df_filtered["data"], dayfirst=True, errors="coerce")
     repasse_num = _to_numeric_br(df_filtered["repasse_picmoney"]).fillna(0.0)
 
     plot_df = pd.DataFrame({"data": data_dt, "repasse": repasse_num})
-    plot_df = plot_df.dropna(subset=["data"])  # remove datas inválidas
-    # Foco no mês 7 (Julho)
-    plot_df = plot_df[plot_df["data"].dt.month == 7]
-    # Cria coluna explícita de dia para evitar uso do índice no groupby
-    plot_df = plot_df.assign(dia=plot_df["data"].dt.date)
+    plot_df = plot_df.dropna(subset=["data"]) 
+    plot_df = plot_df[pd.to_datetime(plot_df["data"]).dt.month == 7]
+    plot_df = plot_df.assign(dia=pd.to_datetime(plot_df["data"]).dt.normalize())
 
     daily = (
         plot_df
@@ -436,18 +415,90 @@ if "data" in df_filtered.columns and "repasse_picmoney" in df_filtered.columns:
     )
 
     if not daily.empty:
+        _left_gutter, c1, c2, _right_gutter = st.columns([0.03, 0.47, 0.47, 0.03])
+        ano = int(pd.to_datetime(daily["dia"]).dt.year.mode().iloc[0])
+        dias_no_mes = pd.Period(f"{ano}-07").days_in_month
+        todos_os_dias = pd.date_range(f"{ano}-07-01", periods=dias_no_mes, freq="D")
+        daily_full = (
+            daily.set_index("dia")
+                 .reindex(todos_os_dias, fill_value=0.0)
+                 .rename_axis("dia")
+                 .reset_index()
+        )
+
         fig = px.line(
-            daily,
+            daily_full,
             x="dia",
             y="receita_money_br",
             markers=True,
-            title="Receita Money BR por dia (Julho)",
+            title="Receita Money BR por dia",
         )
         fig.update_traces(line_color="#007031")
-        fig.update_layout(margin=dict(l=40, r=20, t=60, b=40), height=380)
+        fig.update_xaxes(dtick="D1", tickformat="%d")
         fig.update_yaxes(tickprefix="R$ ")
-        st.plotly_chart(fig, use_container_width=True)
+        fig.update_layout(
+            title=dict(text="Repasse Money BR em julho de 2025", font=dict(size=22), x=0.05),
+            xaxis_title=dict(text="Dias", font=dict(size=18)),
+            yaxis_title=dict(text="Valor", font=dict(size=18))
+        )
+        c1.plotly_chart(fig, use_container_width=True)
+
+        # Cupons capturados por dia
+        count_df = pd.DataFrame({"data": data_dt})
+        count_df = count_df.dropna(subset=["data"])
+        count_df = count_df[pd.to_datetime(count_df["data"]).dt.month == 7]
+        count_df = count_df.assign(dia=pd.to_datetime(count_df["data"]).dt.normalize())
+        daily_counts = (
+            count_df
+            .groupby("dia", as_index=False)
+            .size()
+            .rename(columns={"size": "cupons_capturados"})
+        )
+        if not daily_counts.empty:
+            daily_counts_full = (
+                daily_counts.set_index("dia")
+                             .reindex(todos_os_dias, fill_value=0)
+                             .rename_axis("dia")
+                             .reset_index()
+            )
+            fig2 = px.line(
+                daily_counts_full,
+                x="dia",
+                y="cupons_capturados",
+                markers=True,
+                title="Cupons capturados em julho de 2025",
+            )
+            fig2.update_traces(line_color="#007031")
+            fig2.update_xaxes(dtick="D1", tickformat="%d")
+            fig2.update_layout(title=dict(text="Cupons capturados em julho de 2025", font=dict(size=22), x=0.05),
+                            xaxis_title=dict(text="Dias", font=dict(size=18)),
+                            yaxis_title=dict(text="Quantidade", font=dict(size=18)))
+            c2.plotly_chart(fig2, use_container_width=True)
+        else:
+            c2.info("Sem contagem de cupons para Julho nas lojas selecionadas.")
     else:
         st.info("Sem dados de Julho para as lojas selecionadas.")
 else:
     st.info("Colunas 'data' e/ou 'repasse_picmoney' não encontradas na base.")
+
+# Cupons
+
+st.markdown("""
+<div class="info-section">
+    <div class="bar"></div>
+    <div class="info-content-wrapper">
+        <div class="info-text-col">
+            <div class="info-title"><i class="fa-solid fa-receipt"></i> Detalhamento dos cupons</div>
+        </div>
+    </div>
+</div>
+<style>
+.info-title {
+    color: #007031;
+    font-size: 30px;
+    font-family: Inter;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+</style>
+""", unsafe_allow_html=True)
