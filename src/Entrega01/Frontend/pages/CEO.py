@@ -199,7 +199,7 @@ try:
         textposition='inside'
     )
 
-    col1, col2 = st.columns(2)
+    _left_gutter, col1, col2, _right_gutter = st.columns([0.03, 0.47, 0.47, 0.03])
     with col1:
         st.plotly_chart(fig_estab, use_container_width=True, key="grafico_estabelecimentos")
     with col2:
@@ -268,7 +268,7 @@ try:
     )
 
     # --- Mostrar os dois novos gráficos lado a lado ---
-    col3, col4 = st.columns(2)
+    _left_gutter2, col3, col4, _right_gutter2 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col3:
         st.plotly_chart(fig_bairros, use_container_width=True, key="grafico_bairros")
     with col4:
@@ -311,6 +311,26 @@ try:
         r = int(np.ceil(iv.right))
         return f"{l}–{r}"
 
+    # Formatação compacta de moeda
+
+    def _fmt_currency_compact_br(value: float) -> str:
+        try:
+            v = float(value) if value is not None else 0.0
+        except Exception:
+            v = 0.0
+        av = abs(v)
+        if av >= 1_000_000_000:
+            s = f"{v/1_000_000_000:.1f}".replace(".", ",")
+            return f"R$ {s} bi"
+        if av >= 1_000_000:
+            s = f"{v/1_000_000:.1f}".replace(".", ",")
+            return f"R$ {s} mi"
+        if av >= 1_000:
+            s = f"{v/1_000:.1f}".replace(".", ",")
+            return f"R$ {s} mil"
+        txt = f"{v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {txt}"
+
     grouped['faixa'] = grouped['faixa_idade'].apply(fmt_interval)
     grouped = grouped.sort_values('faixa_idade')
     grouped['faixa'] = pd.Categorical(grouped['faixa'], categories=grouped['faixa'], ordered=True)
@@ -350,11 +370,15 @@ try:
     gasto_por_faixa['faixa'] = gasto_por_faixa['faixa_idade'].apply(fmt_interval)
     gasto_por_faixa = gasto_por_faixa.sort_values('faixa_idade')
 
+    # Rótulos compactos para caber nas barras
+
+    gasto_por_faixa['label_br'] = gasto_por_faixa['ultimo_valor_capturado'].apply(_fmt_currency_compact_br)
+
     fig_gasto = px.bar(
         gasto_por_faixa,
         x='faixa',
         y='ultimo_valor_capturado',
-        text='ultimo_valor_capturado',
+        text='label_br',
         title="Montante gasto por faixa de idade",
         color='ultimo_valor_capturado',
         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
@@ -368,15 +392,8 @@ try:
         bargap=0.05,
     )
 
-    fig_gasto.update_traces(
-        texttemplate='%{text:,.0f}',
-        textposition='inside'
-    )
-
-    fig_gasto.update_traces(
-        texttemplate='%{text:,.0f}',
-        textposition='inside'
-    )
+    fig_gasto.update_traces(texttemplate='%{text}', textposition='inside')
+    fig_gasto.update_yaxes(tickprefix='R$ ')
 
     fig_gasto.update_xaxes(tickangle=0, tickfont=dict(size=15))
 
@@ -512,13 +529,13 @@ try:
 
     # Mostrar lado a lado
 
-    col1, col2 = st.columns(2)
+    _left_gutter3, col1, col2, _right_gutter3 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col1:
         st.plotly_chart(fig_idade, use_container_width=True, key="grafico_idade")
     with col2:
         st.plotly_chart(fig_gasto, use_container_width=True, key="grafico_gasto")
 
-    col3, col4 = st.columns(2)
+    _left_gutter4, col3, col4, _right_gutter4 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col3:
         st.plotly_chart(fig_sexo, use_container_width=True, key="grafico_sexo")
     with col4:
@@ -535,7 +552,7 @@ try:
     </div>
     """, unsafe_allow_html=True)
 
-    col5, col6 = st.columns(2)
+    _left_gutter5, col5, col6, _right_gutter5 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col5:
         st.plotly_chart(fig_horario, use_container_width=True, key="grafico_horario")
     with col6:
@@ -669,13 +686,13 @@ try:
     )
 
     # --- Mostrar gráficos ---
-    col1, col2 = st.columns(2)
+    _left_gutter6, col1, col2, _right_gutter6 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col1:
         st.plotly_chart(fig_cidade_res, use_container_width=True, key="grafico_cidade_res")
     with col2:
         st.plotly_chart(fig_bairro_res, use_container_width=True, key="grafico_bairro_res")
 
-    col3, col4 = st.columns(2)
+    _left_gutter7, col3, col4, _right_gutter7 = st.columns([0.03, 0.47, 0.47, 0.03])
     with col3:
         st.plotly_chart(fig_cidade_trab, use_container_width=True, key="grafico_cidade_trab")
     with col4:
