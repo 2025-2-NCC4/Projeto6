@@ -32,7 +32,7 @@ st.markdown("""
 <div class="info-section">
     <div class="info-content-wrapper">
         <div class="info-text-col">
-            <div class="info-title"><i class="fa-solid fa-user-tie"></i> Painel executivo: Chief Executive Officer - CEO</div>
+            <div class="info-title-main"><i class="fa-solid fa-user-tie"></i> Painel executivo: Chief Executive Officer - CEO</div>
             <div class="info-description">
                 O painel do CEO oferece uma visão abrangente do desempenho da empresa, destacando métricas essenciais do público, parceiros e performance geral da companhia. Com gráficos interativos e análises detalhadas, o CEO pode monitorar a saúde financeira da organização, identificar tendências de mercado e tomar decisões estratégicas informadas para impulsionar o sucesso a longo prazo.
             </div>
@@ -66,6 +66,14 @@ st.markdown("""
 .info-title {
     color: #007031; 
     margin-bottom: 1.5rem;
+    font-size: 40px;
+    font-family: Inter;
+    font-weight: bold;
+}
+            
+.info-title-main {
+    color: #007031; 
+    margin-bottom: 50px;
     font-size: 40px;
     font-family: Inter;
     font-weight: bold;

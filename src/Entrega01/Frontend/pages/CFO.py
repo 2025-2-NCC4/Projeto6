@@ -99,7 +99,7 @@ st.markdown("""
 <div class="info-section">
     <div class="info-content-wrapper">
         <div class="info-text-col">
-            <div class="info-title"><i class="fa-solid fa-money-bill-trend-up"></i> Painel executivo: Chief Financial Officer - CFO</div>
+            <div class="info-title-main"><i class="fa-solid fa-money-bill-trend-up"></i> Painel executivo: Chief Financial Officer - CFO</div>
             <div class="info-description">
                 O painel do CFO oferece uma visão abrangente do desempenho financeiro da empresa, destacando métricas essenciais de receitas, despesas e lucros. Com gráficos interativos e análises detalhadas, o CFO pode monitorar a saúde financeira da organização, identificar tendências de mercado e tomar decisões estratégicas informadas para impulsionar o sucesso a longo prazo.
             </div>
@@ -133,6 +133,14 @@ st.markdown("""
 .info-title {
     color: #007031; 
     margin-bottom: 1.5rem;
+    font-size: 40px;
+    font-family: Inter;
+    font-weight: bold;
+}
+            
+.info-title-main {
+    color: #007031; 
+    margin-bottom: 50px;
     font-size: 40px;
     font-family: Inter;
     font-weight: bold;

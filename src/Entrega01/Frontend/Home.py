@@ -26,14 +26,31 @@ st.markdown("""
     justify-content: center;
     align-items: center;
     text-align: center;
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/main-charts.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     color: white;
     margin: 40px 60px 40px 60px;
     padding-top: 2rem;
     border-radius: 15px;
+    overflow: hidden;
+}
+
+.hero-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55));
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
 }
             
 .hero-title {
@@ -55,9 +72,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Topo
+
 st.markdown("""
 <div class="hero-section">
-    <div>
+    <video class="hero-video" autoplay muted loop playsinline poster="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/main-charts.mp4">
+        <source src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/main-charts.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
         <h1 class="hero-title">MONEY <span class="green-text">BR</span></h1>
         <p class="hero-subtitle">Um conjunto de serviços essenciais para você!</p>
     </div>
@@ -124,7 +146,7 @@ st.markdown("""
     <div class="main-title">Encontre ofertas incríveis!</div>
     <div class="cards-wrapper">
         <div class="card-col">
-            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/roupa.jpg">
+            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/clothes.jpg">
             <div class='card-container'>
                 <div class='card-content'>
                     <h3 class='card-title'>Cupons de desconto em roupas</h3>
@@ -133,7 +155,7 @@ st.markdown("""
             </div>
         </div>
         <div class="card-col">
-            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/comida.jpg">
+            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/green-food.jpg">
             <div class='card-container'>
                 <div class='card-content'>
                     <h3 class='card-title'>Cupons de desconto em comida</h3>
@@ -142,7 +164,7 @@ st.markdown("""
             </div>
         </div>
         <div class="card-col">
-            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/eletronico.jpg">
+            <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/computer.jpg">
             <div class='card-container'>
                 <div class='card-content'>
                     <h3 class='card-title'>Cupons de desconto em eletrônicos</h3>
