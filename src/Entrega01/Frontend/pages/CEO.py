@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import pydeck as pdk
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
 from styles.particles import inject_particles  
