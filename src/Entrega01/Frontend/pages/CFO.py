@@ -25,8 +25,8 @@ def load_csv(path: str, sep: str = ';', encoding: str = 'MacRoman', **kwargs) ->
     return pd.read_csv(path, sep=sep, encoding=encoding, **kwargs)
 
 # Helpers de formatação e conversão
+
 def _to_numeric_br(series: pd.Series) -> pd.Series:
-    """Converte strings no formato brasileiro (1.234.567,89) para float."""
     if series.dtype == "O":
         s = (
             series.astype(str)
@@ -40,7 +40,6 @@ def _fmt_currency_br(value: float) -> str:
     if value is None or (isinstance(value, float) and np.isnan(value)):
         value = 0.0
     txt = f"{value:,.2f}"
-    # En-US -> pt-BR
     txt = txt.replace(",", "X").replace(".", ",").replace("X", ".")
     return f"R$ {txt}"
 
@@ -55,6 +54,42 @@ def _fmt_pct(value: float) -> str:
     if value is None or (isinstance(value, float) and np.isnan(value)):
         value = 0.0
     return f"{value*100:.1f}%"
+
+# Formatação compacta
+
+def _fmt_currency_compact_br(value: float) -> str:
+    try:
+        v = float(value) if value is not None else 0.0
+    except Exception:
+        v = 0.0
+    av = abs(v)
+    if av >= 1_000_000_000:
+        s = f"{v/1_000_000_000:.1f}".replace(".", ",")
+        return f"{s} bi"
+    if av >= 1_000_000:
+        s = f"{v/1_000_000:.1f}".replace(".", ",")
+        return f"{s} mi"
+    if av >= 1_000:
+        s = f"{v/1_000:.1f}".replace(".", ",")
+        return f"{s} mil"
+    return _fmt_currency_br(v)
+
+def _fmt_int_compact_br(value: float) -> str:
+    try:
+        v = float(value) if value is not None else 0.0
+    except Exception:
+        v = 0.0
+    av = abs(v)
+    if av >= 1_000_000_000:
+        s = f"{v/1_000_000_000:.1f}".replace(".", ",")
+        return f"{s} bi"
+    if av >= 1_000_000:
+        s = f"{v/1_000_000:.1f}".replace(".", ",")
+        return f"{s} mi"
+    if av >= 1_000:
+        s = f"{v/1_000:.1f}".replace(".", ",")
+        return f"{s} mil"
+    return _fmt_int_br(int(round(v)))
 
 # Seção de informações
 
@@ -502,3 +537,213 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+# Filtro por cupons (tipo_cupom)
+
+tipo_options = []
+if "tipo_cupom" in df_filtered.columns:
+    tipo_options = sorted([t for t in df_filtered["tipo_cupom"].dropna().astype(str).unique()])
+
+st.markdown(
+    """
+<div class="filter-toolbar">
+    <div class="filter-title"><i class="fa-solid fa-sliders"></i> Filtrar cupons</div>
+    
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+selected_tipos = st.multiselect(
+    label="",
+    options=tipo_options,
+    default=tipo_options,
+    placeholder="Selecione um ou mais tipos de cupom",
+    label_visibility="collapsed",
+)
+
+df_cupons = (
+    df_filtered[df_filtered["tipo_cupom"].astype(str).isin(selected_tipos)]
+    if selected_tipos and len(selected_tipos) > 0 and "tipo_cupom" in df_filtered.columns
+    else df_filtered
+)
+
+# KPIs de cupons filtrados
+
+valor_c = _to_numeric_br(df_cupons.get("valor_cupom")) if "valor_cupom" in df_cupons.columns else pd.Series(dtype=float)
+repasse_c = _to_numeric_br(df_cupons.get("repasse_picmoney")) if "repasse_picmoney" in df_cupons.columns else pd.Series(dtype=float)
+
+qtd_cupons_c = int(len(df_cupons))
+receita_total_c = float(np.nansum(valor_c)) if not valor_c.empty else 0.0
+receita_moneybr_c = float(np.nansum(repasse_c)) if not repasse_c.empty else 0.0
+receita_liquida_c = receita_total_c - receita_moneybr_c
+
+qtd_cupons_c_fmt = _fmt_int_br(qtd_cupons_c)
+receita_total_c_fmt = _fmt_currency_br(receita_total_c)
+receita_moneybr_c_fmt = _fmt_currency_br(receita_moneybr_c)
+receita_liquida_c_fmt = _fmt_currency_br(receita_liquida_c)
+
+st.markdown(
+    f"""
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Quantidade de cupons</div><div class="kpi-icon-circle"><i class="fa-solid fa-ticket"></i></div></div>
+    <div class="kpi-value">{qtd_cupons_c_fmt}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
+    <div class="kpi-value">{receita_total_c_fmt}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Receita Money BR</div><div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div></div>
+    <div class="kpi-value">{receita_moneybr_c_fmt}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Receita líquida</div><div class="kpi-icon-circle"><i class="fa-solid fa-signal"></i></div></div>
+    <div class="kpi-value">{receita_liquida_c_fmt}</div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+# Gráficos
+
+_lg, col_lojas, col_bairros, _rg = st.columns([0.03, 0.47, 0.47, 0.03])
+
+# Paleta de verdes
+
+GREEN_SEQ = [ '#74c476', '#31a354', '#006d2c']
+color_map = {}
+if "tipo_cupom" in df_cupons.columns:
+    tipos_ordenados = sorted(df_cupons["tipo_cupom"].dropna().astype(str).unique())
+    color_map = {t: GREEN_SEQ[i % len(GREEN_SEQ)] for i, t in enumerate(tipos_ordenados)}
+
+# Top 10 lojas por valo
+
+with col_lojas:
+    if "nome_estabelecimento" in df_cupons.columns and "tipo_cupom" in df_cupons.columns:
+        base_lojas = df_cupons.copy()
+        base_lojas["valor_num"] = _to_numeric_br(base_lojas.get("valor_cupom")) if "valor_cupom" in base_lojas.columns else np.nan
+        if base_lojas["valor_num"].notna().any():
+            total_por_loja = base_lojas.groupby("nome_estabelecimento", as_index=False)["valor_num"].sum()
+            top_lojas = total_por_loja.nlargest(10, "valor_num")["nome_estabelecimento"].tolist()
+            agg = (
+                base_lojas[base_lojas["nome_estabelecimento"].isin(top_lojas)]
+                .groupby(["nome_estabelecimento", "tipo_cupom"], as_index=False)["valor_num"].sum()
+                .rename(columns={"valor_num": "valor"})
+            )
+            y_label = "Valor"
+        else:
+            total_por_loja = base_lojas.groupby("nome_estabelecimento", as_index=False).size()
+            top_lojas = total_por_loja.nlargest(10, "size")["nome_estabelecimento"].tolist()
+            agg = (
+                base_lojas[base_lojas["nome_estabelecimento"].isin(top_lojas)]
+                .groupby(["nome_estabelecimento", "tipo_cupom"], as_index=False)
+                .size()
+                .rename(columns={"size": "valor"})
+            )
+            y_label = "Quantidade"
+
+        if not agg.empty:
+            if y_label == "Valor":
+                agg["text_label"] = agg["valor"].apply(_fmt_currency_compact_br)
+            else:
+                agg["text_label"] = agg["valor"].apply(_fmt_int_compact_br)
+            fig_l = px.bar(
+                agg,
+                x="nome_estabelecimento",
+                y="valor",
+                color="tipo_cupom",
+                barmode="stack",
+                title=f"Top 10 lojas por {y_label.lower()} de cupons (empilhado por tipo)",
+                color_discrete_map=color_map,
+                text="text_label",
+            )
+            fig_l.update_layout(
+                xaxis_title="Lojas",
+                yaxis_title=y_label,
+                legend_title_text="Tipo de cupom",
+                legend_title_font=dict(size=18),
+                legend=dict(font=dict(size=15)),
+                title=dict(x=0.05, font=dict(size=20)),
+            )
+            fig_l.update_xaxes(tickangle=-30)
+            fig_l.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
+            st.plotly_chart(fig_l, use_container_width=True)
+        else:
+            st.info("Sem dados suficientes para compor o gráfico de lojas.")
+    else:
+        st.info("Colunas necessárias não encontradas: 'nome_estabelecimento' e/ou 'tipo_cupom'.")
+
+# Top 10 bairros por valor
+
+with col_bairros:
+    possiveis_bairros = [
+        "bairro",
+        "bairro_cliente",
+        "bairro_estabelecimento",
+        "bairro_loja",
+    ]
+    bairro_col = next((c for c in possiveis_bairros if c in df_cupons.columns), None)
+
+    if bairro_col and "tipo_cupom" in df_cupons.columns:
+        base_bairros = df_cupons.copy()
+        base_bairros = base_bairros.dropna(subset=[bairro_col])
+        base_bairros["valor_num"] = _to_numeric_br(base_bairros.get("valor_cupom")) if "valor_cupom" in base_bairros.columns else np.nan
+
+        if base_bairros["valor_num"].notna().any():
+            total_por_bairro = base_bairros.groupby(bairro_col, as_index=False)["valor_num"].sum()
+            top_bairros = total_por_bairro.nlargest(10, "valor_num")[bairro_col].tolist()
+            agg_b = (
+                base_bairros[base_bairros[bairro_col].isin(top_bairros)]
+                .groupby([bairro_col, "tipo_cupom"], as_index=False)["valor_num"].sum()
+                .rename(columns={"valor_num": "valor"})
+            )
+            y_label_b = "Valor"
+        else:
+            total_por_bairro = base_bairros.groupby(bairro_col, as_index=False).size()
+            top_bairros = total_por_bairro.nlargest(10, "size")[bairro_col].tolist()
+            agg_b = (
+                base_bairros[base_bairros[bairro_col].isin(top_bairros)]
+                .groupby([bairro_col, "tipo_cupom"], as_index=False)
+                .size()
+                .rename(columns={"size": "valor"})
+            )
+            y_label_b = "Quantidade"
+
+        if not agg_b.empty:
+            # Labels compactas
+            if y_label_b == "Valor":
+                agg_b["text_label"] = agg_b["valor"].apply(_fmt_currency_compact_br)
+            else:
+                agg_b["text_label"] = agg_b["valor"].apply(_fmt_int_compact_br)
+            fig_b = px.bar(
+                agg_b,
+                x=bairro_col,
+                y="valor",
+                color="tipo_cupom",
+                barmode="stack",
+                title=f"Top 10 bairros por {y_label_b.lower()} de cupons (empilhado por tipo)",
+                color_discrete_map=color_map,
+                text="text_label",
+            )
+            fig_b.update_layout(
+                xaxis_title="Bairros",
+                yaxis_title=y_label_b,
+                legend_title_text="Tipo de cupom",
+                legend_title_font=dict(size=18),
+                legend=dict(font=dict(size=15)),
+                title=dict(x=0.05, font=dict(size=20)),
+            )
+            fig_b.update_xaxes(tickangle=-30)
+            fig_b.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
+            st.plotly_chart(fig_b, use_container_width=True)
+        else:
+            st.info("Sem dados suficientes para compor o gráfico de bairros.")
+    else:
+        st.info("Nenhuma coluna de bairro encontrada para montar o gráfico.")
+
+# Footer
+
+inject_footer()
