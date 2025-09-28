@@ -254,21 +254,21 @@ st.markdown(
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
-<div class="kpi-title">Margem Operacional</div>
+<div class="kpi-title">Margem operacional</div>
 <div class="kpi-icon-circle"><i class="fa-solid fa-percent"></i></div>
 </div>
 <div class="kpi-value">{margem_operacional_fmt}</div>
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
-<div class="kpi-title">Usuários ativos</div>
+<div class="kpi-title">Usuários</div>
 <div class="kpi-icon-circle"><i class="fa-solid fa-user-group"></i></div>
 </div>
 <div class="kpi-value">{usuarios_ativos_fmt}</div>
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
-<div class="kpi-title">Lojas ativas</div>
+<div class="kpi-title">Lojas</div>
 <div class="kpi-icon-circle"><i class="fa-solid fa-store"></i></div>
 </div>
 <div class="kpi-value">{lojas_ativas_fmt}</div>
@@ -760,7 +760,7 @@ st.markdown("""
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
-            <div class="info-title"><i class="fa-solid fa-receipt"></i> Correlações</div>
+            <div class="info-title"><i class="fa-solid fa-arrow-trend-up"></i> Correlações</div>
         </div>
     </div>
 </div>
