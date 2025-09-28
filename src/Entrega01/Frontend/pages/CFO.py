@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
 from styles.particles import inject_particles  
@@ -621,7 +622,7 @@ _lg, col_lojas, col_bairros, _rg = st.columns([0.03, 0.47, 0.47, 0.03])
 
 # Paleta de verdes
 
-GREEN_SEQ = [ '#74c476', '#31a354', '#006d2c']
+GREEN_SEQ = [ "#023004", "#6ee190", "#119131"]
 color_map = {}
 if "tipo_cupom" in df_cupons.columns:
     tipos_ordenados = sorted(df_cupons["tipo_cupom"].dropna().astype(str).unique())
@@ -751,6 +752,185 @@ with col_bairros:
             st.info("Sem dados suficientes para compor o gráfico de bairros.")
     else:
         st.info("Nenhuma coluna de bairro encontrada para montar o gráfico.")
+
+# Correlações
+
+st.markdown("""
+<div class="info-section">
+    <div class="bar"></div>
+    <div class="info-content-wrapper">
+        <div class="info-text-col">
+            <div class="info-title"><i class="fa-solid fa-receipt"></i> Correlações</div>
+        </div>
+    </div>
+</div>
+<style>
+.info-title {
+    color: #007031;
+    font-size: 30px;
+    font-family: Inter;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Gráfico de correlação
+
+_lg_corr, corr_left, corr_right, _rg_corr = st.columns([0.03, 0.47, 0.47, 0.03])
+
+# Correlação: valor_cupom vs repasse_picmoney
+
+with corr_left:
+    if {"valor_cupom", "repasse_picmoney"}.issubset(df_cupons.columns):
+        x_val = _to_numeric_br(df_cupons["valor_cupom"]).astype(float)
+        y_rep = _to_numeric_br(df_cupons["repasse_picmoney"]).astype(float)
+        mask = x_val.notna() & y_rep.notna()
+        x = x_val[mask]
+        y = y_rep[mask]
+
+        if len(x) >= 2:
+
+            # Pearson r
+
+            r = float(np.corrcoef(x, y)[0, 1])
+            abs_r = abs(r)
+            if abs_r < 0.3:
+                grau = "fraca"
+            elif abs_r < 0.6:
+                grau = "moderada"
+            elif abs_r < 0.8:
+                grau = "forte"
+            else:
+                grau = "muito forte"
+
+            corr_df = pd.DataFrame({"Valor do cupom": x, "Repasse Money BR": y})
+            fig_corr = px.scatter(
+                corr_df,
+                x="Valor do cupom",
+                y="Repasse Money BR",
+                title=f"Correlação linear Valor x Repasse (r = {r:.2f}, grau: {grau})",
+            )
+
+            # Trendline
+
+            try:
+                coeffs = np.polyfit(x, y, 1)
+                x_min, x_max = float(x.min()), float(x.max())
+                xs = np.array([x_min, x_max])
+                ys = coeffs[0] * xs + coeffs[1]
+
+                # Linha acima dos pontos
+
+                fig_corr.add_shape(
+                    type="line",
+                    x0=x_min, y0=float(ys[0]), x1=x_max, y1=float(ys[1]),
+                    xref="x", yref="y",
+                    line=dict(color="#023004", width=4, dash="dash"),
+                    layer="above",
+                )
+                fig_corr.update_traces(showlegend=False)
+                fig_corr.add_trace(
+                    go.Scatter(
+                        x=xs,
+                        y=ys,
+                        mode="lines",
+                        name=f"Tendência (r={r:.2f})",
+                        line=dict(color="#023004", width=4, dash="dash"),
+                        showlegend=True,
+                        hoverinfo="skip",
+                        visible="legendonly",
+                    )
+                )
+            except Exception:
+                pass
+
+            fig_corr.update_traces(marker=dict(color="#196D0C"))
+            fig_corr.update_layout(
+                xaxis_title="Valor do cupom",
+                yaxis_title="Repasse Money BR",
+                title=dict(x=0.05, font=dict(size=20), pad=dict(b=14)),
+                legend=dict(
+                    orientation="h",
+                    font=dict(size=14, color="#ffffff"),
+                    x=0.05,
+                    y=1.02,
+                    xanchor="left",
+                    yanchor="bottom",
+                ),
+                margin=dict(t=110),
+            )
+            fig_corr.update_xaxes(tickprefix="R$ ")
+            fig_corr.update_yaxes(tickprefix="R$ ")
+            st.plotly_chart(fig_corr, use_container_width=True)
+        else:
+            st.info("Dados insuficientes para calcular correlação.")
+    else:
+        st.info("Colunas 'valor_cupom' e/ou 'repasse_picmoney' não encontradas.")
+
+# Linhas de tendência por tipo_cupom
+
+with corr_right:
+    required_cols = {"valor_cupom", "repasse_picmoney", "tipo_cupom"}
+    if required_cols.issubset(df_cupons.columns):
+        df_aux = df_cupons.copy()
+        df_aux["x"] = _to_numeric_br(df_aux["valor_cupom"]).astype(float)
+        df_aux["y"] = _to_numeric_br(df_aux["repasse_picmoney"]).astype(float)
+        df_aux["tipo"] = df_aux["tipo_cupom"].astype(str)
+        df_aux = df_aux[df_aux["x"].notna() & df_aux["y"].notna() & df_aux["tipo"].notna()]
+
+        tipos = sorted(df_aux["tipo"].unique())
+        color_map_local = {t: GREEN_SEQ[i % len(GREEN_SEQ)] for i, t in enumerate(tipos)}
+
+        fig_lines = go.Figure()
+        added = 0
+        for t in tipos:
+            sub = df_aux[df_aux["tipo"] == t]
+            if len(sub) < 2:
+                continue
+            try:
+                r = float(np.corrcoef(sub["x"], sub["y"])[0, 1])
+                a, b = np.polyfit(sub["x"], sub["y"], 1)
+                x_min_t = float(sub["x"].min())
+                x_max_t = float(sub["x"].max())
+                xs = np.array([x_min_t, x_max_t])
+                ys = a * xs + b
+                fig_lines.add_trace(
+                    go.Scatter(
+                        x=xs,
+                        y=ys,
+                        mode="lines",
+                        name=f"{t} (r={r:.2f})",
+                        line=dict(color=color_map_local.get(t, "#56ac37"), dash="dash", width=4),
+                        showlegend=True,
+                    )
+                )
+                added += 1
+            except Exception:
+                continue
+
+        if added > 0:
+            fig_lines.update_layout(
+                title=dict(text="Tendências por tipo de cupom", x=0.05, font=dict(size=20), pad=dict(b=14)),
+                xaxis_title="Valor do cupom",
+                yaxis_title="Repasse Money BR",
+                legend=dict(
+                    orientation="h",
+                    font=dict(size=14),
+                    x=0.05,
+                    y=1.02,
+                    xanchor="left",
+                    yanchor="bottom",
+                ),
+                margin=dict(t=110)
+            )
+            fig_lines.update_xaxes(tickprefix="R$ ")
+            fig_lines.update_yaxes(tickprefix="R$ ")
+            st.plotly_chart(fig_lines, use_container_width=True)
+        else:
+            st.info("Dados insuficientes por tipo para traçar linhas de tendência.")
+    else:
+        st.info("Colunas 'valor_cupom', 'repasse_picmoney' e/ou 'tipo_cupom' não encontradas.")
 
 # Footer
 
