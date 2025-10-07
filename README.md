@@ -59,11 +59,11 @@ README.MD: Arquivo que serve como guia e explicação geral sobre o projeto.
 
 Além disso, há outras pastas com os devidos arquivos em cada período de entrega.
 
-⛲ src: Pasta que contém arquivos do frontend e backend da Money BR, divididos por entregas conforme cronograma da FECAP.
+⛲ [src](./src): Pasta que contém arquivos do frontend e backend da Money BR, divididos por entregas conforme cronograma da FECAP.
 
-📄 documentos: Devidos documentos do projeto e arquivos relacionados as matérias de Análise Inferencial de Dados, Contabilidade, Engenharia de Software e Projeto Interdisiciplinar.
+📄 [documentos](/documentos): Devidos documentos do projeto e arquivos relacionados as matérias de Análise Inferencial de Dados, Contabilidade, Engenharia de Software e Projeto Interdisiciplinar.
 
-📸 img: Reunião de imagens utilizadas no projeto.
+📸 [img](/imagens): Reunião de imagens utilizadas no projeto.
 
 ---
 
