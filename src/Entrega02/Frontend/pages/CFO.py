@@ -226,7 +226,7 @@ st.markdown(
 <div class="kpi-grid">
 <div class="kpi-card">
 <div class="kpi-header">
-<div class="kpi-title">Receita Money BR</div>
+<div class="kpi-title">Repasse Money BR</div>
 <div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div>
 </div>
 <div class="kpi-value">{receita_moneybr_fmt}</div>
@@ -433,16 +433,16 @@ st.markdown(
 <div class="kpi-value">{nome_loja_text}</div>
 </div>
 <div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
-<div class="kpi-value">{receita_total_f_fmt}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header"><div class="kpi-title">Receita Money BR</div><div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div></div>
+<div class="kpi-header"><div class="kpi-title">Repasse Money BR</div><div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div></div>
 <div class="kpi-value">{receita_moneybr_f_fmt}</div>
 </div>
 <div class="kpi-card">
 <div class="kpi-header"><div class="kpi-title">Receita líquida</div><div class="kpi-icon-circle"><i class="fa-solid fa-signal"></i></div></div>
 <div class="kpi-value">{receita_liquida_f_fmt}</div>
+</div>
+<div class="kpi-card">
+<div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
+<div class="kpi-value">{receita_total_f_fmt}</div>
 </div>
 </div>
 """,
@@ -607,17 +607,17 @@ st.markdown(
     <div class="kpi-header"><div class="kpi-title">Quantidade de cupons</div><div class="kpi-icon-circle"><i class="fa-solid fa-ticket"></i></div></div>
     <div class="kpi-value">{qtd_cupons_c_fmt}</div>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
-    <div class="kpi-value">{receita_total_c_fmt}</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-header"><div class="kpi-title">Receita Money BR</div><div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div></div>
+    <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Repasse Money BR</div><div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div></div>
     <div class="kpi-value">{receita_moneybr_c_fmt}</div>
   </div>
   <div class="kpi-card">
     <div class="kpi-header"><div class="kpi-title">Receita líquida</div><div class="kpi-icon-circle"><i class="fa-solid fa-signal"></i></div></div>
     <div class="kpi-value">{receita_liquida_c_fmt}</div>
+  </div>
+    <div class="kpi-card">
+    <div class="kpi-header"><div class="kpi-title">Receita total</div><div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div></div>
+    <div class="kpi-value">{receita_total_c_fmt}</div>
   </div>
 </div>
 """,
@@ -636,7 +636,7 @@ if "tipo_cupom" in df_cupons.columns:
     tipos_ordenados = sorted(df_cupons["tipo_cupom"].dropna().astype(str).unique())
     color_map = {t: GREEN_SEQ[i % len(GREEN_SEQ)] for i, t in enumerate(tipos_ordenados)}
 
-# Top 10 lojas por valo
+# Top 10 lojas por valor
 
 with col_lojas:
     if "nome_estabelecimento" in df_cupons.columns and "tipo_cupom" in df_cupons.columns:
@@ -834,7 +834,7 @@ with corr_left:
                     type="line",
                     x0=x_min, y0=float(ys[0]), x1=x_max, y1=float(ys[1]),
                     xref="x", yref="y",
-                    line=dict(color="#023004", width=4, dash="dash"),
+                    line=dict(color="#FFFFFF", width=4, dash="dash"),
                     layer="above",
                 )
                 fig_corr.update_traces(showlegend=False)
