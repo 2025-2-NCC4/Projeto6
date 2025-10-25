@@ -204,7 +204,7 @@ receita_moneybr = float(np.nansum(repasse)) if not repasse.empty else 0.0
 cupons_capturados = int(len(df))
 ticket_medio = (receita_total / cupons_capturados) if cupons_capturados > 0 else 0.0
 receita_liquida = receita_total - receita_moneybr
-margem_operacional = (receita_liquida / receita_total) if receita_total > 0 else 0.0
+margem_operacional = (receita_moneybr / receita_total) if receita_total > 0 else 0.0
 lojas_ativas = int(df["nome_estabelecimento"].nunique(dropna=True)) if "nome_estabelecimento" in df.columns else 0
 usuarios_ativos = int(df["celular"].nunique(dropna=True)) if "celular" in df.columns else 0
 
@@ -226,17 +226,11 @@ st.markdown(
 <div class="kpi-grid">
 <div class="kpi-card">
 <div class="kpi-header">
-<div class="kpi-title">Receita total</div>
-<div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div>
-</div>
-<div class="kpi-value">{receita_total_fmt}</div>
-</div>
-<div class="kpi-card">
-<div class="kpi-header">
 <div class="kpi-title">Receita Money BR</div>
 <div class="kpi-icon-circle"><i class="fa-solid fa-wallet"></i></div>
 </div>
 <div class="kpi-value">{receita_moneybr_fmt}</div>
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -244,6 +238,16 @@ st.markdown(
 <div class="kpi-icon-circle"><i class="fa-solid fa-signal"></i></div>
 </div>
 <div class="kpi-value">{receita_liquida_fmt}</div>
+
+</div>
+<div class="kpi-card">
+<div class="kpi-header">
+<div class="kpi-title">Receita total</div>
+<div class="kpi-icon-circle"><i class="fa-solid fa-money-check-dollar"></i></div>
+</div>
+<div class="kpi-value">{receita_total_fmt}</div>
+
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -251,6 +255,7 @@ st.markdown(
 <div class="kpi-icon-circle"><i class="fa-solid fa-chart-line"></i></div>
 </div>
 <div class="kpi-value">{ticket_medio_fmt}</div>
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -258,6 +263,7 @@ st.markdown(
 <div class="kpi-icon-circle"><i class="fa-solid fa-percent"></i></div>
 </div>
 <div class="kpi-value">{margem_operacional_fmt}</div>
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -265,6 +271,7 @@ st.markdown(
 <div class="kpi-icon-circle"><i class="fa-solid fa-user-group"></i></div>
 </div>
 <div class="kpi-value">{usuarios_ativos_fmt}</div>
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -272,6 +279,7 @@ st.markdown(
 <div class="kpi-icon-circle"><i class="fa-solid fa-store"></i></div>
 </div>
 <div class="kpi-value">{lojas_ativas_fmt}</div>
+
 </div>
 <div class="kpi-card">
 <div class="kpi-header">
@@ -310,7 +318,7 @@ st.markdown(
     box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.kpi-title { color: #AAB3C0; font-size: 14px; font-weight: bold; font-family: Inter; }
+.kpi-title { color: #FFF; font-size: 16px; font-weight: bold; font-family: Inter; }
 .kpi-icon-circle { width: 36px; height: 36px; border-radius: 10px; background: #007031; display:flex; align-items:center; justify-content:center; }
 .kpi-icon-circle i { color: #fff !important; font-size: 16px; }
 .kpi-value { color: #fff; font-size: 28px; font-weight: 800; font-family: Inter; }
