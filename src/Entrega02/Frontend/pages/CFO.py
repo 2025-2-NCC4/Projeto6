@@ -21,9 +21,9 @@ inject_particles()
 
 # Utilitário de leitura com cache
 
-@st.cache_data(show_spinner="Carregando dados do CSV")
-def load_csv(path: str, sep: str = ';', encoding: str = 'MacRoman', **kwargs) -> pd.DataFrame:
-    return pd.read_csv(path, sep=sep, encoding=encoding, **kwargs)
+@st.cache_data(show_spinner="Carregando dados...")
+def load_data(path: str) -> pd.DataFrame:
+    return pd.read_parquet(path)
 
 # Helpers de formatação e conversão
 
@@ -189,8 +189,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Carrega a base
-
-df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv", sep=';', encoding='MacRoman')
+with st.spinner("Processando dados..."):
+    df = load_data("data/Base_de_Transacoes_Cupons_Capturados.parquet")
 
 # Conversões de colunas numéricas
 

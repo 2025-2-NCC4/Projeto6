@@ -20,9 +20,9 @@ inject_particles()
 
 # Utilitário de leitura com cache
 
-@st.cache_data(show_spinner="Carregando dados do CSV")
-def load_csv(path: str, sep: str = ';', encoding: str = 'MacRoman', **kwargs) -> pd.DataFrame:
-    return pd.read_csv(path, sep=sep, encoding=encoding, **kwargs)
+@st.cache_data(show_spinner="Carregando dados...")
+def load_data(path: str) -> pd.DataFrame:
+    return pd.read_parquet(path)
 
 # Seção de informações
 
@@ -121,7 +121,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv", sep=';', encoding='MacRoman')
+    with st.spinner("Processando dados..."):
+        df = load_data("data/Base_de_Transacoes_Cupons_Capturados.parquet")
 
     # --- Top 10 estabelecimentos ---
     top_10_estabelecimentos = df['nome_estabelecimento'].value_counts().head(10)
@@ -296,7 +297,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    df = load_csv("data/Base_Simulada_Pedestres_Av_Paulista.csv", sep=';', encoding='MacRoman')
+    with st.spinner("Processando dados de perfil de clientes..."):
+        df = load_data("data/Base_Simulada_Pedestres_Av_Paulista.parquet")
 
     # Histograma: Idade
 
@@ -579,7 +581,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    df_players = load_csv("data/Base_Cadastral_de_Players.csv", sep=';', encoding='MacRoman')
+    with st.spinner("Processando dados demográficos..."):
+        df_players = load_data("data/Base_Cadastral_de_Players.parquet")
 
     # --- Cidade Residencial ---
     cidade_res_counts = df_players['cidade_residencial'].value_counts().reset_index().head(10)
