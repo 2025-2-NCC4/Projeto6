@@ -1,0 +1,6 @@
+streamlit
+pandas
+numpy
+plotly
+pyarrow
+streamlit-lottie

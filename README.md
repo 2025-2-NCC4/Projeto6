@@ -69,6 +69,13 @@ Além disso, há outras pastas com os devidos arquivos em cada período de entre
 
 ## 🛠️ Tutoriais de instalação
 
+- Para funcionamento completo da aplicação, deverá ser instalado previamente as dependências utilizadas nesse projeto. Para isso rode o comando abaixo no terminal:
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install -r src/Entrega02/Frontend/requirements.txt
+```
+
 Em construção...
 
 ---
