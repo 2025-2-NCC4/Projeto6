@@ -10,7 +10,7 @@ from styles.particles import inject_particles
 
 st.set_page_config(
     page_title="CEO",
-    page_icon="📊",
+    page_icon="assets/ceo-icon.png",
     layout="wide"
 )
 

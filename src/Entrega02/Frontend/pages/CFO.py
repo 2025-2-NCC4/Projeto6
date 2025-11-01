@@ -11,7 +11,7 @@ from styles.particles import inject_particles
 
 st.set_page_config(
     page_title="CFO",
-    page_icon="💰",
+    page_icon="assets/cfo-icon.png",
     layout="wide"
 )
 
@@ -189,8 +189,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Carrega a base
-
-df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv", sep=';', encoding='MacRoman')
+with st.spinner("Processando dados..."):
+    df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv")
 
 # Conversões de colunas numéricas
 
