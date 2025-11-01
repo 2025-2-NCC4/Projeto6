@@ -75,8 +75,8 @@ st.markdown("""
 
 st.markdown("""
 <div class="hero-section">
-    <video class="hero-video" autoplay muted loop playsinline poster="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/main-charts.mp4">
-        <source src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/main-charts.mp4" type="video/mp4">
+    <video class="hero-video" autoplay muted loop playsinline poster="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/charts-home.mp4">
+        <source src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/charts-home.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
