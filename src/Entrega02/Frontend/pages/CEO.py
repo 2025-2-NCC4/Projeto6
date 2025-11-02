@@ -31,7 +31,6 @@ st.markdown("""
             
 <div class="info-section">
     <div class="info-content-wrapper">
-        <!-- Bloco Esquerdo -->
         <div class="info-left-col">
             <div class="info-title-main"><i class="fa-solid fa-briefcase"></i> Painel executivo: Chief Executive Officer - CEO</div>
             <div class="info-description">

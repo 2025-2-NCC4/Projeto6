@@ -99,13 +99,31 @@ st.markdown("""
             
 <div class="info-section">
     <div class="info-content-wrapper">
-        <div class="info-text-col">
+        <div class="info-left-col">
             <div class="info-title-main"><i class="fa-solid fa-money-bill-trend-up"></i> Painel executivo: Chief Financial Officer - CFO</div>
             <div class="info-description">
                 O painel do CFO oferece uma visão abrangente do desempenho financeiro da empresa, destacando métricas essenciais de receitas, despesas e lucros. Com gráficos interativos e análises detalhadas, o CFO pode monitorar a saúde financeira da organização, identificar tendências de mercado e tomar decisões estratégicas informadas para impulsionar o sucesso a longo prazo.
+                <br>
+                <br>
+                <span class="explore-sections-title">Explore as seções!</span>
+            </div>
+            <div class="navigation-bar">
+                <a href="#volumetrias-totais" class="nav-button">
+                    <i class="fa-solid fa-chart-pie"></i> Volumetrias totais
+                </a>
+                <a href="#detalhamento-lojistas" class="nav-button">
+                    <i class="fa-solid fa-shop"></i> Detalhamento dos lojistas
+                </a>
+                <a href="#detalhamento-cupons" class="nav-button">
+                    <i class="fa-solid fa-receipt"></i> Detalhamento dos cupons
+                </a>
+                <a href="#correlacoes" class="nav-button">
+                    <i class="fa-solid fa-arrow-trend-up"></i> Correlações
+                </a>
             </div>
         </div>
-        <div class="info-image-col">
+
+<div class="info-right-col">
             <img src="https://raw.githubusercontent.com/2025-2-NCC4/Projeto6/refs/heads/main/imagens/charts-cfo.jpg" style="width: 100%; border-radius: 10px;">
         </div>
     </div>
@@ -122,35 +140,64 @@ st.markdown("""
     align-items: flex-start;
 }
 
-.info-text-col {
+.info-left-col {
     flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.info-image-col {
+.info-right-col {
     flex: 1;
-    filter: brightness(0.6);
 }
-            
-.info-title {
-    color: #007031; 
-    margin-bottom: 1.5rem;
-    font-size: 40px;
-    font-family: Inter;
-    font-weight: bold;
-}
-            
+
 .info-title-main {
     color: #007031; 
-    margin-bottom: 50px;
+    margin-bottom: 20px;
     font-size: 40px;
     font-family: Inter;
     font-weight: bold;
 }
-            
+
 .info-description {
     font-family: Inter;
     font-size: 25px;
     color: #fff;
+    margin-bottom: 20px;
+}
+
+.navigation-bar {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-button,
+.nav-button:link,
+.nav-button:visited {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ffffff !important;
+    background-color: #007031;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none !important;
+    transition: background-color 0.3s ease;
+}
+
+.nav-button i {
+    margin-right: 0.5rem;
+}
+
+.nav-button:hover {
+    background-color: #005824;
+}
+
+.nav-button:active {
+    background-color: #00471a;
 }
             
 .bar {
@@ -170,7 +217,7 @@ st.markdown("""
 # Volumetrias
 
 st.markdown("""
-<div class="info-section">
+<div id="volumetrias-totais" class="info-section">
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
@@ -189,6 +236,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Carrega a base
+
 with st.spinner("Processando dados..."):
     df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv")
 
@@ -330,7 +378,7 @@ st.markdown(
 # Lojas
 
 st.markdown("""
-<div class="info-section">
+<div id="detalhamento-lojistas" class="info-section">
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
@@ -489,7 +537,7 @@ if "data" in df_filtered.columns and "repasse_picmoney" in df_filtered.columns:
         fig.update_xaxes(dtick="D1", tickformat="%d")
         fig.update_yaxes(tickprefix="R$ ")
         fig.update_layout(
-            title=dict(text="Repasse Money BR em julho de 2025", font=dict(size=22), x=0.05),
+            title=dict(text="Repasse (R$) Money BR em julho de 2025", font=dict(size=22), x=0.05),
             xaxis_title=dict(text="Dias", font=dict(size=18)),
             yaxis_title=dict(text="Valor", font=dict(size=18))
         )
@@ -536,7 +584,7 @@ else:
 # Cupons
 
 st.markdown("""
-<div class="info-section">
+<div id="detalhamento-cupons" class="info-section">
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
@@ -630,7 +678,7 @@ _lg, col_lojas, col_bairros, _rg = st.columns([0.03, 0.47, 0.47, 0.03])
 
 # Paleta de verdes
 
-GREEN_SEQ = [ "#023004", "#6ee190", "#119131"]
+GREEN_SEQ = [ "#5EB161", "#6ee190", "#119131"]
 color_map = {}
 if "tipo_cupom" in df_cupons.columns:
     tipos_ordenados = sorted(df_cupons["tipo_cupom"].dropna().astype(str).unique())
@@ -673,7 +721,7 @@ with col_lojas:
                 y="valor",
                 color="tipo_cupom",
                 barmode="stack",
-                title=f"Top 10 lojas por {y_label.lower()} de cupons (empilhado por tipo)",
+                title=f"Top 10 lojas por {y_label.lower()} (R$) de cupons (empilhado por tipo)",
                 color_discrete_map=color_map,
                 text="text_label",
             )
@@ -741,7 +789,7 @@ with col_bairros:
                 y="valor",
                 color="tipo_cupom",
                 barmode="stack",
-                title=f"Top 10 bairros por {y_label_b.lower()} de cupons (empilhado por tipo)",
+                title=f"Top 10 bairros por {y_label_b.lower()} (R$) de cupons (empilhado por tipo)",
                 color_discrete_map=color_map,
                 text="text_label",
             )
@@ -768,7 +816,7 @@ st.markdown("""
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
-            <div class="info-title"><i class="fa-solid fa-arrow-trend-up"></i> Correlações</div>
+            <div id="correlacoes" class="info-title"><i class="fa-solid fa-arrow-trend-up"></i> Correlações</div>
         </div>
     </div>
 </div>
