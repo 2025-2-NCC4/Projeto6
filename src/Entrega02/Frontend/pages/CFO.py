@@ -750,7 +750,7 @@ with col_lojas:
                 yaxis=dict(tickfont=dict(size=16))
             )
             fig_l.update_xaxes(tickangle=-30)
-            fig_l.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
+            fig_l.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=16)
             st.plotly_chart(fig_l, use_container_width=True)
         else:
             st.info("Sem dados suficientes para compor o gráfico de lojas.")
@@ -820,7 +820,7 @@ with col_bairros:
                 yaxis=dict(tickfont=dict(size=16)),
             )
             fig_b.update_xaxes(tickangle=-30)
-            fig_b.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
+            fig_b.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=16)
             st.plotly_chart(fig_b, use_container_width=True)
         else:
             st.info("Sem dados suficientes para compor o gráfico de bairros.")

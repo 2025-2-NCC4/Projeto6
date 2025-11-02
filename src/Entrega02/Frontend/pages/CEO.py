@@ -216,7 +216,8 @@ try:
 
     fig_estab.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Top 10 categorias ---
@@ -253,9 +254,10 @@ try:
         legend_title=dict(font=dict(size=16))
     )
 
-    fig_estab.update_traces(
+    fig_cat.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     _left_gutter, col1, col2, _right_gutter = st.columns([0.03, 0.47, 0.47, 0.03])
@@ -293,7 +295,8 @@ try:
     )
     fig_bairros.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Cupons ---
@@ -325,7 +328,8 @@ try:
     )
     fig_cupons.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Mostrar os dois novos gráficos lado a lado ---
@@ -355,7 +359,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 
 try:
     df = load_csv("data/Base_Simulada_Pedestres_Av_Paulista.csv", sep=';', encoding='MacRoman')
@@ -423,7 +426,8 @@ try:
         marker_line_color="black",
         marker_line_width=0.5,
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     fig_idade.update_xaxes(tickangle=0, tickfont=dict(size=15))
@@ -458,7 +462,7 @@ try:
         bargap=0.05,
     )
 
-    fig_gasto.update_traces(texttemplate='%{text}', textposition='inside')
+    fig_gasto.update_traces(texttemplate='%{text}', textposition='inside', textfont_size=16)
     fig_gasto.update_yaxes(tickprefix='R$ ')
 
     fig_gasto.update_xaxes(tickangle=0, tickfont=dict(size=15))
@@ -478,7 +482,7 @@ try:
     )
 
     fig_sexo.update_traces(
-        textinfo="percent+label+value",
+        textinfo="percent+label+value", textfont_size=14
     )
 
     fig_sexo.update_layout(
@@ -521,7 +525,8 @@ try:
 
     fig_modelo.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # Faixa de horários
@@ -565,7 +570,8 @@ try:
         marker_line_color="black",
         marker_line_width=0.5,
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # Principais locais
@@ -595,7 +601,8 @@ try:
 
     fig_local.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # Mostrar lado a lado
@@ -676,7 +683,8 @@ try:
     )
     fig_cidade_res.update_traces(
         texttemplate='%{text:,}',
-        textposition='outside'
+        textposition='outside',
+        textfont_size=16
     )
 
     # --- Bairro Residencial ---
@@ -703,7 +711,8 @@ try:
     )
     fig_bairro_res.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Cidade Trabalho ---
@@ -730,7 +739,8 @@ try:
     )
     fig_cidade_trab.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Bairro Trabalho ---
@@ -757,7 +767,8 @@ try:
     )
     fig_bairro_trab.update_traces(
         texttemplate='%{text:,}',
-        textposition='inside'
+        textposition='inside',
+        textfont_size=16
     )
 
     # --- Mostrar gráficos ---
