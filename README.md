@@ -104,12 +104,12 @@ Money BR © 2025 by André Gregório dos Santos, Guilherme Reis Fogolin de Godoy
 
 ## 🎓 Referências 
 
-1. [Streamlit documentation](https://docs.streamlit.io/)
+1. ALURA (São Paulo). **Storytelling com dados: transforme seus dados em narrativas envolventes**. Disponível em: https://www.alura.com.br/artigos/storytelling-com-dados. Acesso em: 05 ago. 2025.
 
-2. [Python documentation](https://docs.python.org/3/)
+2. Python Software Foundation. **Python 3.14.0 documentation**. 2025. Disponível em: https://docs.python.org/3/. Acesso em: 11 set. 2025.
 
-3. [Storytelling com dados](https://www.alura.com.br/artigos/storytelling-com-dados)
+3. **STREAMLIT documentation**. 2025. Disponível em: https://docs.streamlit.io/. Acesso em: 27 ago. 2025.
 
-4. [Manual Rcommander](https://www.est.ufmg.br/~monitoria/Material/Manual_Rcmdr.pdf)
+4. XAVIER, Amanda; NARIMATSU, Gustavo; CAROLINA, Larissa; GONZAGA, Matheus; LUNA, Adrian. **Manual Rcommander**. Disponível em: https://www.est.ufmg.br/~monitoria/Material/Manual_Rcmdr.pdf. Acesso em: 03 set. 2025.
 
 ---
