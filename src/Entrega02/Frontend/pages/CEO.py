@@ -180,6 +180,7 @@ st.markdown(
 """,
         unsafe_allow_html=True,
 )
+
 # Volumetrias gerais
 
 st.markdown("""
@@ -432,302 +433,6 @@ except KeyError as e:
 except Exception as e:
     st.error(f"Ocorreu um erro: {e}")
 
-# # Perfil dos clientes e avenida paulista
-
-# st.markdown("""
-# <div id="perfil-dos-clientes" class="info-section">
-#     <div class="bar"></div>
-#     <div class="info-content-wrapper">
-#         <div class="info-text-col">
-#             <div class="info-title"><i class="fa-solid fa-user"></i> Perfil dos clientes</div>
-#         </div>
-#     </div>
-# </div>
-# """, unsafe_allow_html=True)
-
-# try:
-#     df = load_csv("data/Base_Simulada_Pedestres_Av_Paulista.csv", sep=';', encoding='MacRoman')
-
-#     # Histograma: Idade
-
-#     nbins = 10
-#     df['faixa_idade'] = pd.cut(df['idade'], bins=nbins)
-
-#     grouped = df['faixa_idade'].value_counts().sort_index().reset_index()
-#     grouped.columns = ['faixa_idade', 'Quantidade']
-
-#     def fmt_interval(iv):
-#         l = int(np.floor(iv.left))
-#         r = int(np.ceil(iv.right))
-#         return f"{l}–{r}"
-
-#     # Formatação compacta de moeda
-
-#     def _fmt_currency_compact_br(value: float) -> str:
-#         try:
-#             v = float(value) if value is not None else 0.0
-#         except Exception:
-#             v = 0.0
-#         av = abs(v)
-#         if av >= 1_000_000_000:
-#             s = f"{v/1_000_000_000:.1f}".replace(".", ",")
-#             return f"R$ {s} bi"
-#         if av >= 1_000_000:
-#             s = f"{v/1_000_000:.1f}".replace(".", ",")
-#             return f"R$ {s} mi"
-#         if av >= 1_000:
-#             s = f"{v/1_000:.1f}".replace(".", ",")
-#             return f"R$ {s} mil"
-#         txt = f"{v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
-#         return f"R$ {txt}"
-
-#     grouped['faixa'] = grouped['faixa_idade'].apply(fmt_interval)
-#     grouped = grouped.sort_values('faixa_idade')
-#     grouped['faixa'] = pd.Categorical(grouped['faixa'], categories=grouped['faixa'], ordered=True)
-
-#     fig_idade = px.bar(
-#         grouped,
-#         x='faixa',
-#         y='Quantidade',
-#         text='Quantidade',
-#         title="Distribuição de idade dos usuários",
-#         color='Quantidade', 
-#         color_continuous_scale=[
-#             '#e5f5e0', '#a1d99b', '#74c476', '#31a354', '#006d2c'
-#         ],
-#     )
-
-#     fig_idade.update_layout(
-#         title=dict(text="Distribuição de idade dos usuários", font=dict(size=22), x=0.05),
-#         xaxis_title=dict(text="Faixa de idade", font=dict(size=22)),
-#         yaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
-#         xaxis=dict(tickfont=dict(size=16)),
-#         yaxis=dict(tickfont=dict(size=16)),
-#         bargap=0.05,
-#         showlegend=False
-#     )
-
-#     fig_idade.update_traces(
-#         marker_line_color="black",
-#         marker_line_width=0.5,
-#         texttemplate='%{text:,}',
-#         textposition='inside',
-#         textfont_size=16
-#     )
-
-#     fig_idade.update_xaxes(tickangle=0, tickfont=dict(size=15))
-
-#     # Montante gasto por faixa de idade
-
-#     gasto_por_faixa = df.groupby('faixa_idade')['ultimo_valor_capturado'].sum().reset_index()
-#     gasto_por_faixa['faixa'] = gasto_por_faixa['faixa_idade'].apply(fmt_interval)
-#     gasto_por_faixa = gasto_por_faixa.sort_values('faixa_idade')
-
-#     # Rótulos compactos para caber nas barras
-
-#     gasto_por_faixa['label_br'] = gasto_por_faixa['ultimo_valor_capturado'].apply(_fmt_currency_compact_br)
-
-#     fig_gasto = px.bar(
-#         gasto_por_faixa,
-#         x='faixa',
-#         y='ultimo_valor_capturado',
-#         text='label_br',
-#         title="Montante gasto por faixa de idade",
-#         color='ultimo_valor_capturado',
-#         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
-#     )
-
-#     fig_gasto.update_layout(
-#         title=dict(text="Montante gasto por faixa de idade", font=dict(size=22), x=0.05),
-#         xaxis_title=dict(text="Faixa de idade", font=dict(size=22)),
-#         yaxis_title=dict(text="Montante gasto", font=dict(size=22)),
-#         xaxis=dict(tickfont=dict(size=16)),
-#         yaxis=dict(tickfont=dict(size=16)),
-#         coloraxis_colorbar=dict(title="Montante gasto"),
-#         bargap=0.05,
-#     )
-
-#     fig_gasto.update_traces(texttemplate='%{text}', textposition='inside', textfont_size=16)
-#     fig_gasto.update_yaxes(tickprefix='R$ ')
-
-#     fig_gasto.update_xaxes(tickangle=0, tickfont=dict(size=15))
-
-#     # Gráfico de rosca: Sexo
-
-#     sexo_counts = df['sexo'].value_counts().reset_index()
-#     sexo_counts.columns = ["Sexo", "Quantidade"]
-
-#     fig_sexo = px.pie(
-#         sexo_counts,
-#         values="Quantidade",
-#         names="Sexo",
-#         title="Proporção de usuários por sexo",
-#         hole=0.5,
-#         color_discrete_sequence=["#74c476", "#006d2c"]
-#     )
-
-#     fig_sexo.update_traces(
-#         textinfo="percent+label+value", textfont_size=14
-#     )
-
-#     fig_sexo.update_layout(
-#     title=dict(text="Proporção de usuários por sexo", font=dict(size=22), x=0.05),
-#     legend_title=dict(font=dict(size=18)),
-#         legend=dict(
-#         orientation="h",
-#         yanchor="bottom",
-#         y=-0.2,
-#         xanchor="center",
-#         x=0.5,
-#         font=dict(size=16)
-#     )
-#     )
-
-#     # Modelo de celular
-
-#     modelo_counts = df['modelo_celular'].value_counts().reset_index()
-#     modelo_counts.columns = ['Modelo de Celular', 'Quantidade']
-
-#     fig_modelo = px.bar(
-#         modelo_counts,
-#         x='Quantidade',
-#         y='Modelo de Celular',
-#         orientation='h',
-#         text='Quantidade',
-#         title="Quantidade de usuários por modelo de celular",
-#         color='Quantidade',
-#         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
-#     )
-
-#     fig_modelo.update_layout(
-#         title=dict(text="Quantidade de usuários por modelo de celular", font=dict(size=22), x=0.05),
-#         xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
-#         yaxis_title=dict(text="Modelo de Celular", font=dict(size=22)),
-#         xaxis=dict(tickfont=dict(size=16)),
-#         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
-#         showlegend=False
-#     )
-
-#     fig_modelo.update_traces(
-#         texttemplate='%{text:,}',
-#         textposition='inside',
-#         textfont_size=16
-#     )
-
-#     # Faixa de horários
-
-#     df['horario'] = pd.to_datetime(df['horario'], format='%H:%M:%S', errors='coerce').dt.time
-
-#     def faixa_horario(h):
-#         if h >= pd.to_datetime('00:00:00').time() and h <= pd.to_datetime('11:59:59').time():
-#             return 'Manhã'
-#         elif h >= pd.to_datetime('12:00:00').time() and h <= pd.to_datetime('18:59:59').time():
-#             return 'Tarde'
-#         else:
-#             return 'Noite'
-
-#     df['faixa_horario'] = df['horario'].apply(faixa_horario)
-
-#     horario_counts = df['faixa_horario'].value_counts().reindex(['Manhã','Tarde','Noite']).reset_index()
-#     horario_counts.columns = ['Faixa de Horário', 'Quantidade']
-
-#     fig_horario = px.bar(
-#         horario_counts,
-#         x='Faixa de Horário',
-#         y='Quantidade',
-#         text='Quantidade',
-#         title="Distribuição de registros por faixa de horário",
-#         color='Quantidade',
-#         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
-#     )
-
-#     fig_horario.update_layout(
-#         title=dict(text="Distribuição de registros por faixa de horário", font=dict(size=22), x=0.05),
-#         xaxis_title=dict(text="Faixa de horário", font=dict(size=22)),
-#         yaxis_title=dict(text="Quantidade de registros", font=dict(size=22)),
-#         xaxis=dict(tickfont=dict(size=16)),
-#         yaxis=dict(tickfont=dict(size=16)),
-#         bargap=0.1,
-#         showlegend=False
-#     )
-
-#     fig_horario.update_traces(
-#         marker_line_color="black",
-#         marker_line_width=0.5,
-#         texttemplate='%{text:,}',
-#         textposition='inside',
-#         textfont_size=16
-#     )
-
-#     # Principais locais
-
-#     top_locais = df['local'].value_counts().head(10).reset_index()
-#     top_locais.columns = ['Local', 'Quantidade']
-
-#     fig_local = px.bar(
-#         top_locais,
-#         x='Quantidade',
-#         y='Local',
-#         text='Quantidade',
-#         orientation='h',
-#         title="Top 10 locais com mais registros",
-#         color='Quantidade',
-#         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
-#     )
-
-#     fig_local.update_layout(
-#         title=dict(text="Top 10 locais com mais registros", font=dict(size=22), x=0.05),
-#         xaxis_title=dict(text="Quantidade de registros", font=dict(size=22)),
-#         yaxis_title=dict(text="Local", font=dict(size=22)),
-#         xaxis=dict(tickfont=dict(size=16)),
-#         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
-#         showlegend=False
-#     )
-
-#     fig_local.update_traces(
-#         texttemplate='%{text:,}',
-#         textposition='inside',
-#         textfont_size=16
-#     )
-
-#     # Mostrar lado a lado
-
-#     _left_gutter3, col1, col2, _right_gutter3 = st.columns([0.03, 0.47, 0.47, 0.03])
-#     with col1:
-#         st.plotly_chart(fig_idade, use_container_width=True, key="grafico_idade")
-#     with col2:
-#         st.plotly_chart(fig_gasto, use_container_width=True, key="grafico_gasto")
-
-#     _left_gutter4, col3, col4, _right_gutter4 = st.columns([0.03, 0.47, 0.47, 0.03])
-#     with col3:
-#         st.plotly_chart(fig_sexo, use_container_width=True, key="grafico_sexo")
-#     with col4:
-#         st.plotly_chart(fig_modelo, use_container_width=True, key="grafico_modelo")
-
-#     st.markdown("""
-#     <div id="detalhamento-avenida-paulista" class="info-section">
-#         <div class="bar"></div>
-#         <div class="info-content-wrapper">
-#             <div class="info-text-col">
-#                 <div class="info-title"><i class="fa-solid fa-road"></i> Detalhamento: Avenida Paulista</div>
-#             </div>
-#         </div>
-#     </div>
-#     """, unsafe_allow_html=True)
-
-#     _left_gutter5, col5, col6, _right_gutter5 = st.columns([0.03, 0.47, 0.47, 0.03])
-#     with col5:
-#         st.plotly_chart(fig_horario, use_container_width=True, key="grafico_horario")
-#     with col6:
-#         st.plotly_chart(fig_local, use_container_width=True, key="grafico_local")     
-
-# except FileNotFoundError:
-#     st.error("Erro: O arquivo 'Base_Simulada_Pedestres_Av_Paulista.csv' não foi encontrado.")
-# except KeyError as e:
-#     st.error(f"Erro: A coluna {e} não foi encontrada. Verifique o nome no CSV.")
-# except Exception as e:
-#     st.error(f"Ocorreu um erro: {e}")
-
 # Dados demográficos
 
 st.markdown("""
@@ -742,13 +447,85 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 try:
-    df_players = load_csv("data/Base_Cadastral_de_Players.csv", sep=';', encoding='MacRoman')
+
+     df = load_csv("data/Base_Cadastral_de_Players.csv", sep=';', encoding='MacRoman')
+
+     if df.empty:
+        st.error("O DataFrame está vazio. Verifique seu arquivo CSV.")
+        st.stop()
+
+    # Filtros
+
+     col_filtros_1, col_filtros_2, col_filtros_3, col_filtros_4 = st.columns(4)
+
+    # Filtro cidade residencial
+     with col_filtros_1:
+        cidade_res_unicos = df['cidade_residencial'].unique()
+        cidade_res_selecionadas = st.multiselect(
+            "Filtre por cidade residencial:",
+            options=sorted(cidade_res_unicos),
+            default=[], 
+            placeholder="Selecione uma ou mais cidades"
+        )
+
+    # Filtro bairro residencial
+     with col_filtros_2:
+        bairro_res_unicos = df['bairro_residencial'].unique()
+        bairro_res_selecionados = st.multiselect(
+            "Filtre por bairro residencial:",
+            options=sorted(bairro_res_unicos),
+            default=[],
+            placeholder="Selecione um ou mais bairros residenciais"
+        )
+
+    # Filtro cidade de trabalho
+     with col_filtros_3:
+        cidade_trab_unicos = df['cidade_trabalho'].unique()
+        cidade_trab_selecionadas = st.multiselect(
+            "Filtre por cidade de trabalho:",
+            options=sorted(cidade_trab_unicos),
+            default=[],
+            placeholder="Selecione uma ou mais cidades de trabalho"
+        )
+
+    # Filtro bairro de trabalho
+     with col_filtros_4:
+        bairro_trab_unicos = df['bairro_trabalho'].unique()
+        bairro_trab_selecionados = st.multiselect(
+            "Filtre por bairro de trabalho:",
+            options=sorted(bairro_trab_unicos),
+            default=[],
+            placeholder="Selecione um ou mais bairros de trabalho"
+        )
+
+     df_filtrado = df.copy() # Cópia de df
+
+    # Filtros em cascata
+     if cidade_res_selecionadas:
+        df_filtrado = df_filtrado[df_filtrado['cidade_residencial'].isin(cidade_res_selecionadas)]
+        
+     if bairro_res_selecionados:
+        df_filtrado = df_filtrado[df_filtrado['bairro_residencial'].isin(bairro_res_selecionados)]
+
+     if bairro_res_selecionados:
+        df_filtrado = df_filtrado[df_filtrado['bairro_residencial'].isin(bairro_res_selecionados)]
+
+     if cidade_trab_selecionadas:
+        df_filtrado = df_filtrado[df_filtrado['cidade_trabalho'].isin(cidade_trab_selecionadas)]
+
+     if bairro_trab_selecionados:
+        df_filtrado = df_filtrado[df_filtrado['bairro_trabalho'].isin(bairro_trab_selecionados)]
+
+    # Verificar se há dados
+     if df_filtrado.empty:
+        st.info("Não há transações para a combinação de filtros selecionada. Tente reduzir o número de filtros.")
+        st.stop()
 
     # --- Cidade Residencial ---
-    cidade_res_counts = df_players['cidade_residencial'].value_counts().reset_index().head(10)
-    cidade_res_counts.columns = ['Cidade Residencial', 'Quantidade']
+     cidade_res_counts = df_filtrado['cidade_residencial'].value_counts().reset_index().head(10)
+     cidade_res_counts.columns = ['Cidade Residencial', 'Quantidade']
 
-    fig_cidade_res = px.bar(
+     fig_cidade_res = px.bar(
         cidade_res_counts,
         x='Quantidade',
         y='Cidade Residencial',
@@ -758,7 +535,7 @@ try:
         color='Quantidade',
         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
     )
-    fig_cidade_res.update_layout(
+     fig_cidade_res.update_layout(
         title=dict(text="10 maiores quantidades de usuários por cidade residencial", font=dict(size=22), x=0.05),
         xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
         yaxis_title=dict(text="Cidade Residencial", font=dict(size=22)),
@@ -766,17 +543,17 @@ try:
         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
         showlegend=False
     )
-    fig_cidade_res.update_traces(
+     fig_cidade_res.update_traces(
         texttemplate='%{text:,}',
         textposition='outside',
         textfont_size=16
     )
 
     # --- Bairro Residencial ---
-    bairro_res_counts = df_players['bairro_residencial'].value_counts().reset_index().head(10)
-    bairro_res_counts.columns = ['Bairro Residencial', 'Quantidade']
+     bairro_res_counts = df_filtrado['bairro_residencial'].value_counts().reset_index().head(10)
+     bairro_res_counts.columns = ['Bairro Residencial', 'Quantidade']
 
-    fig_bairro_res = px.bar(
+     fig_bairro_res = px.bar(
         bairro_res_counts,
         x='Quantidade',
         y='Bairro Residencial',
@@ -786,7 +563,7 @@ try:
         color='Quantidade',
         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
     )
-    fig_bairro_res.update_layout(
+     fig_bairro_res.update_layout(
         title=dict(text="10 maiores quantidades de usuários por bairro residencial", font=dict(size=22), x=0.05),
         xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
         yaxis_title=dict(text="Bairro Residencial", font=dict(size=22)),
@@ -794,17 +571,17 @@ try:
         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
         showlegend=False
     )
-    fig_bairro_res.update_traces(
+     fig_bairro_res.update_traces(
         texttemplate='%{text:,}',
         textposition='inside',
         textfont_size=16
     )
 
     # --- Cidade Trabalho ---
-    cidade_trab_counts = df_players['cidade_trabalho'].value_counts().reset_index()
-    cidade_trab_counts.columns = ['Cidade Trabalho', 'Quantidade']
+     cidade_trab_counts = df_filtrado['cidade_trabalho'].value_counts().reset_index()
+     cidade_trab_counts.columns = ['Cidade Trabalho', 'Quantidade']
 
-    fig_cidade_trab = px.bar(
+     fig_cidade_trab = px.bar(
         cidade_trab_counts,
         x='Quantidade',
         y='Cidade Trabalho',
@@ -814,7 +591,7 @@ try:
         color='Quantidade',
         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
     )
-    fig_cidade_trab.update_layout(
+     fig_cidade_trab.update_layout(
         title=dict(text="Quantidade de usuários por cidade de trabalho", font=dict(size=22), x=0.05),
         xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
         yaxis_title=dict(text="Cidade de Trabalho", font=dict(size=22)),
@@ -822,17 +599,17 @@ try:
         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
         showlegend=False
     )
-    fig_cidade_trab.update_traces(
+     fig_cidade_trab.update_traces(
         texttemplate='%{text:,}',
         textposition='inside',
         textfont_size=16
     )
 
     # --- Bairro Trabalho ---
-    bairro_trab_counts = df_players['bairro_trabalho'].value_counts().reset_index().head(10)
-    bairro_trab_counts.columns = ['Bairro Trabalho', 'Quantidade']
+     bairro_trab_counts = df_filtrado['bairro_trabalho'].value_counts().reset_index().head(10)
+     bairro_trab_counts.columns = ['Bairro Trabalho', 'Quantidade']
 
-    fig_bairro_trab = px.bar(
+     fig_bairro_trab = px.bar(
         bairro_trab_counts,
         x='Quantidade',
         y='Bairro Trabalho',
@@ -842,7 +619,7 @@ try:
         color='Quantidade',
         color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
     )
-    fig_bairro_trab.update_layout(
+     fig_bairro_trab.update_layout(
         title=dict(text="10 maiores quantidades de usuários por bairro de trabalho", font=dict(size=22), x=0.05),
         xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
         yaxis_title=dict(text="Bairro de Trabalho", font=dict(size=22)),
@@ -850,27 +627,323 @@ try:
         yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
         showlegend=False,
     )
-    fig_bairro_trab.update_traces(
+     fig_bairro_trab.update_traces(
         texttemplate='%{text:,}',
         textposition='inside',
         textfont_size=16
     )
 
     # --- Mostrar gráficos ---
-    _left_gutter6, col1, col2, _right_gutter6 = st.columns([0.03, 0.47, 0.47, 0.03])
-    with col1:
+     _left_gutter6, col1, col2, _right_gutter6 = st.columns([0.03, 0.47, 0.47, 0.03])
+     with col1:
         st.plotly_chart(fig_cidade_res, use_container_width=True, key="grafico_cidade_res")
-    with col2:
+     with col2:
         st.plotly_chart(fig_bairro_res, use_container_width=True, key="grafico_bairro_res")
 
-    _left_gutter7, col3, col4, _right_gutter7 = st.columns([0.03, 0.47, 0.47, 0.03])
-    with col3:
+     _left_gutter7, col3, col4, _right_gutter7 = st.columns([0.03, 0.47, 0.47, 0.03])
+     with col3:
         st.plotly_chart(fig_cidade_trab, use_container_width=True, key="grafico_cidade_trab")
-    with col4:
-        st.plotly_chart(fig_bairro_trab, use_container_width=True, key="grafico_bairro_trab")
+     with col4:
+       st.plotly_chart(fig_bairro_trab, use_container_width=True, key="grafico_bairro_trab")
 
 except FileNotFoundError:
     st.error("Erro: O arquivo 'Base_Cadastral_de_Players.csv' não foi encontrado.")
+except KeyError as e:
+    st.error(f"Erro: A coluna {e} não foi encontrada. Verifique o nome no CSV.")
+except Exception as e:
+    st.error(f"Ocorreu um erro: {e}")
+
+# Perfil dos clientes e avenida paulista
+
+st.markdown("""
+<div id="perfil-dos-clientes" class="info-section">
+<div class="bar"></div>
+    <div class="info-content-wrapper">
+        <div class="info-text-col">
+            <div class="info-title"><i class="fa-solid fa-user"></i> Perfil dos clientes</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+try:
+    df = load_csv("data/Base_Simulada_Pedestres_Av_Paulista.csv", sep=';', encoding='MacRoman')
+
+    # Histograma: Idade
+
+    nbins = 10
+    df['faixa_idade'] = pd.cut(df['idade'], bins=nbins)
+
+    grouped = df['faixa_idade'].value_counts().sort_index().reset_index()
+    grouped.columns = ['faixa_idade', 'Quantidade']
+
+    def fmt_interval(iv):
+        l = int(np.floor(iv.left))
+        r = int(np.ceil(iv.right))
+        return f"{l}–{r}"
+
+    # Formatação compacta de moeda
+
+    def _fmt_currency_compact_br(value: float) -> str:
+        try:
+            v = float(value) if value is not None else 0.0
+        except Exception:
+            v = 0.0
+        av = abs(v)
+        if av >= 1_000_000_000:
+            s = f"{v/1_000_000_000:.1f}".replace(".", ",")
+            return f"R$ {s} bi"
+        if av >= 1_000_000:
+            s = f"{v/1_000_000:.1f}".replace(".", ",")
+            return f"R$ {s} mi"
+        if av >= 1_000:
+            s = f"{v/1_000:.1f}".replace(".", ",")
+            return f"R$ {s} mil"
+        txt = f"{v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"R$ {txt}"
+
+    grouped['faixa'] = grouped['faixa_idade'].apply(fmt_interval)
+    grouped = grouped.sort_values('faixa_idade')
+    grouped['faixa'] = pd.Categorical(grouped['faixa'], categories=grouped['faixa'], ordered=True)
+
+    fig_idade = px.bar(
+        grouped,
+        x='faixa',
+        y='Quantidade',
+        text='Quantidade',
+        title="Distribuição de idade dos usuários",
+        color='Quantidade', 
+        color_continuous_scale=[
+            '#e5f5e0', '#a1d99b', '#74c476', '#31a354', '#006d2c'
+        ],
+    )
+
+    fig_idade.update_layout(
+        title=dict(text="Distribuição de idade dos usuários", font=dict(size=22), x=0.05),
+        xaxis_title=dict(text="Faixa de idade", font=dict(size=22)),
+        yaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
+        xaxis=dict(tickfont=dict(size=16)),
+        yaxis=dict(tickfont=dict(size=16)),
+        bargap=0.05,
+        showlegend=False
+    )
+
+    fig_idade.update_traces(
+        marker_line_color="black",
+        marker_line_width=0.5,
+        texttemplate='%{text:,}',
+        textposition='inside',
+        textfont_size=16
+    )
+
+    fig_idade.update_xaxes(tickangle=0, tickfont=dict(size=15))
+
+    # Montante gasto por faixa de idade
+
+    gasto_por_faixa = df.groupby('faixa_idade')['ultimo_valor_capturado'].sum().reset_index()
+    gasto_por_faixa['faixa'] = gasto_por_faixa['faixa_idade'].apply(fmt_interval)
+    gasto_por_faixa = gasto_por_faixa.sort_values('faixa_idade')
+
+    # Rótulos compactos para caber nas barras
+
+    gasto_por_faixa['label_br'] = gasto_por_faixa['ultimo_valor_capturado'].apply(_fmt_currency_compact_br)
+
+    fig_gasto = px.bar(
+        gasto_por_faixa,
+        x='faixa',
+        y='ultimo_valor_capturado',
+        text='label_br',
+        title="Montante gasto por faixa de idade",
+        color='ultimo_valor_capturado',
+        color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
+    )
+
+    fig_gasto.update_layout(
+        title=dict(text="Montante gasto por faixa de idade", font=dict(size=22), x=0.05),
+        xaxis_title=dict(text="Faixa de idade", font=dict(size=22)),
+        yaxis_title=dict(text="Montante gasto", font=dict(size=22)),
+        xaxis=dict(tickfont=dict(size=16)),
+        yaxis=dict(tickfont=dict(size=16)),
+        coloraxis_colorbar=dict(title="Montante gasto"),
+        bargap=0.05,
+    )
+
+    fig_gasto.update_traces(texttemplate='%{text}', textposition='inside', textfont_size=16)
+    fig_gasto.update_yaxes(tickprefix='R$ ')
+
+    fig_gasto.update_xaxes(tickangle=0, tickfont=dict(size=15))
+
+    # Gráfico de rosca: Sexo
+
+    sexo_counts = df['sexo'].value_counts().reset_index()
+    sexo_counts.columns = ["Sexo", "Quantidade"]
+
+    fig_sexo = px.pie(
+        sexo_counts,
+        values="Quantidade",
+        names="Sexo",
+        title="Proporção de usuários por sexo",
+        hole=0.5,
+        color_discrete_sequence=["#74c476", "#006d2c"]
+    )
+
+    fig_sexo.update_traces(
+        textinfo="percent+label+value", textfont_size=14
+    )
+
+    fig_sexo.update_layout(
+    title=dict(text="Proporção de usuários por sexo", font=dict(size=22), x=0.05),
+    legend_title=dict(font=dict(size=18)),
+        legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=-0.2,
+        xanchor="center",
+        x=0.5,
+        font=dict(size=16)
+    )
+    )
+
+    # Modelo de celular
+
+    modelo_counts = df['modelo_celular'].value_counts().reset_index()
+    modelo_counts.columns = ['Modelo de Celular', 'Quantidade']
+
+    fig_modelo = px.bar(
+        modelo_counts,
+        x='Quantidade',
+        y='Modelo de Celular',
+        orientation='h',
+        text='Quantidade',
+        title="Quantidade de usuários por modelo de celular",
+        color='Quantidade',
+        color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
+    )
+
+    fig_modelo.update_layout(
+        title=dict(text="Quantidade de usuários por modelo de celular", font=dict(size=22), x=0.05),
+        xaxis_title=dict(text="Quantidade de usuários", font=dict(size=22)),
+        yaxis_title=dict(text="Modelo de Celular", font=dict(size=22)),
+        xaxis=dict(tickfont=dict(size=16)),
+        yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
+        showlegend=False
+    )
+
+    fig_modelo.update_traces(
+        texttemplate='%{text:,}',
+        textposition='inside',
+        textfont_size=16
+    )
+
+    # Faixa de horários
+
+    df['horario'] = pd.to_datetime(df['horario'], format='%H:%M:%S', errors='coerce').dt.time
+
+    def faixa_horario(h):
+        if h >= pd.to_datetime('00:00:00').time() and h <= pd.to_datetime('11:59:59').time():
+            return 'Manhã'
+        elif h >= pd.to_datetime('12:00:00').time() and h <= pd.to_datetime('18:59:59').time():
+            return 'Tarde'
+        else:
+            return 'Noite'
+
+    df['faixa_horario'] = df['horario'].apply(faixa_horario)
+
+    horario_counts = df['faixa_horario'].value_counts().reindex(['Manhã','Tarde','Noite']).reset_index()
+    horario_counts.columns = ['Faixa de Horário', 'Quantidade']
+
+    fig_horario = px.bar(
+        horario_counts,
+        x='Faixa de Horário',
+        y='Quantidade',
+        text='Quantidade',
+        title="Distribuição de registros por faixa de horário",
+        color='Quantidade',
+        color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
+    )
+
+    fig_horario.update_layout(
+        title=dict(text="Distribuição de registros por faixa de horário", font=dict(size=22), x=0.05),
+        xaxis_title=dict(text="Faixa de horário", font=dict(size=22)),
+        yaxis_title=dict(text="Quantidade de registros", font=dict(size=22)),
+        xaxis=dict(tickfont=dict(size=16)),
+        yaxis=dict(tickfont=dict(size=16)),
+        bargap=0.1,
+        showlegend=False
+    )
+
+    fig_horario.update_traces(
+        marker_line_color="black",
+        marker_line_width=0.5,
+        texttemplate='%{text:,}',
+        textposition='inside',
+        textfont_size=16
+    )
+
+    # Principais locais
+
+    top_locais = df['local'].value_counts().head(10).reset_index()
+    top_locais.columns = ['Local', 'Quantidade']
+
+    fig_local = px.bar(
+        top_locais,
+        x='Quantidade',
+        y='Local',
+        text='Quantidade',
+        orientation='h',
+        title="Top 10 locais com mais registros",
+        color='Quantidade',
+        color_continuous_scale=['#e5f5e0','#a1d99b','#74c476','#31a354','#006d2c']
+    )
+
+    fig_local.update_layout(
+        title=dict(text="Top 10 locais com mais registros", font=dict(size=22), x=0.05),
+        xaxis_title=dict(text="Quantidade de registros", font=dict(size=22)),
+        yaxis_title=dict(text="Local", font=dict(size=22)),
+        xaxis=dict(tickfont=dict(size=16)),
+        yaxis=dict(categoryorder='total ascending', tickfont=dict(size=16)),
+        showlegend=False
+    )
+
+    fig_local.update_traces(
+        texttemplate='%{text:,}',
+        textposition='inside',
+        textfont_size=16
+    )
+
+    # Mostrar lado a lado
+
+    _left_gutter3, col1, col2, _right_gutter3 = st.columns([0.03, 0.47, 0.47, 0.03])
+    with col1:
+        st.plotly_chart(fig_idade, use_container_width=True, key="grafico_idade")
+    with col2:
+        st.plotly_chart(fig_gasto, use_container_width=True, key="grafico_gasto")
+
+    _left_gutter4, col3, col4, _right_gutter4 = st.columns([0.03, 0.47, 0.47, 0.03])
+    with col3:
+        st.plotly_chart(fig_sexo, use_container_width=True, key="grafico_sexo")
+    with col4:
+        st.plotly_chart(fig_modelo, use_container_width=True, key="grafico_modelo")
+
+    st.markdown("""
+    <div id="detalhamento-avenida-paulista" class="info-section">
+        <div class="bar"></div>
+        <div class="info-content-wrapper">
+            <div class="info-text-col">
+                <div class="info-title"><i class="fa-solid fa-road"></i> Detalhamento: Avenida Paulista</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    _left_gutter5, col5, col6, _right_gutter5 = st.columns([0.03, 0.47, 0.47, 0.03])
+    with col5:
+        st.plotly_chart(fig_horario, use_container_width=True, key="grafico_horario")
+    with col6:
+        st.plotly_chart(fig_local, use_container_width=True, key="grafico_local")     
+
+except FileNotFoundError:
+    st.error("Erro: O arquivo 'Base_Simulada_Pedestres_Av_Paulista.csv' não foi encontrado.")
 except KeyError as e:
     st.error(f"Erro: A coluna {e} não foi encontrada. Verifique o nome no CSV.")
 except Exception as e:
