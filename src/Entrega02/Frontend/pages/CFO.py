@@ -121,6 +121,15 @@ st.markdown("""
                     <i class="fa-solid fa-arrow-trend-up"></i> Correlações
                 </a>
             </div>
+            <div class="info-description">
+                <br>
+                <span class="explore-sections-title">Visão executiva:</span>
+            </div>
+            <div class="navigation-bar">
+                <a href="/CEO" class="nav-button">
+                    <i class="fa-solid fa-briefcase"></i> Painel CEO
+                </a>
+            </div>
         </div>
 
 <div class="info-right-col">
@@ -538,8 +547,10 @@ if "data" in df_filtered.columns and "repasse_picmoney" in df_filtered.columns:
         fig.update_yaxes(tickprefix="R$ ")
         fig.update_layout(
             title=dict(text="Repasse (R$) Money BR em julho de 2025", font=dict(size=22), x=0.05),
-            xaxis_title=dict(text="Dias", font=dict(size=18)),
-            yaxis_title=dict(text="Valor", font=dict(size=18))
+            xaxis_title=dict(text="Dias", font=dict(size=22)),
+            yaxis_title=dict(text="Valor", font=dict(size=22)),
+            xaxis=dict(tickfont=dict(size=16)),
+            yaxis=dict(tickfont=dict(size=16))
         )
         c1.plotly_chart(fig, use_container_width=True)
 
@@ -571,8 +582,11 @@ if "data" in df_filtered.columns and "repasse_picmoney" in df_filtered.columns:
             fig2.update_traces(line_color="#007031")
             fig2.update_xaxes(dtick="D1", tickformat="%d")
             fig2.update_layout(title=dict(text="Cupons capturados em julho de 2025", font=dict(size=22), x=0.05),
-                            xaxis_title=dict(text="Dias", font=dict(size=18)),
-                            yaxis_title=dict(text="Quantidade", font=dict(size=18)))
+                            xaxis_title=dict(text="Dias", font=dict(size=22)),
+                            yaxis_title=dict(text="Quantidade", font=dict(size=22)),
+                            xaxis=dict(tickfont=dict(size=16)),
+                            yaxis=dict(tickfont=dict(size=16))
+            )
             c2.plotly_chart(fig2, use_container_width=True)
         else:
             c2.info("Sem contagem de cupons para Julho nas lojas selecionadas.")
@@ -726,12 +740,14 @@ with col_lojas:
                 text="text_label",
             )
             fig_l.update_layout(
-                xaxis_title="Lojas",
-                yaxis_title=y_label,
+                xaxis_title=dict(text="Lojas", font=dict(size=22)),
+                yaxis_title=dict(text=y_label, font=dict(size=22)),
                 legend_title_text="Tipo de cupom",
                 legend_title_font=dict(size=18),
                 legend=dict(font=dict(size=15)),
                 title=dict(x=0.05, font=dict(size=20)),
+                xaxis=dict(tickfont=dict(size=16)),
+                yaxis=dict(tickfont=dict(size=16))
             )
             fig_l.update_xaxes(tickangle=-30)
             fig_l.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
@@ -794,12 +810,14 @@ with col_bairros:
                 text="text_label",
             )
             fig_b.update_layout(
-                xaxis_title="Bairros",
-                yaxis_title=y_label_b,
+                xaxis_title=dict(text="Bairros", font=dict(size=22)),
+                yaxis_title=dict(text=y_label_b, font=dict(size=22)),
                 legend_title_text="Tipo de cupom",
                 legend_title_font=dict(size=18),
                 legend=dict(font=dict(size=15)),
                 title=dict(x=0.05, font=dict(size=20)),
+                xaxis=dict(tickfont=dict(size=16)),
+                yaxis=dict(tickfont=dict(size=16)),
             )
             fig_b.update_xaxes(tickangle=-30)
             fig_b.update_traces(texttemplate="%{text}", textposition="inside", textfont_color="white", textfont_size=12)
@@ -903,8 +921,8 @@ with corr_left:
 
             fig_corr.update_traces(marker=dict(color="#196D0C"))
             fig_corr.update_layout(
-                xaxis_title="Valor do cupom",
-                yaxis_title="Repasse Money BR",
+                xaxis_title=dict(text="Valor do cupom", font=dict(size=22)),
+                yaxis_title=dict(text="Repasse Money BR", font=dict(size=22)),
                 title=dict(x=0.05, font=dict(size=20), pad=dict(b=14)),
                 legend=dict(
                     orientation="h",
@@ -915,6 +933,8 @@ with corr_left:
                     yanchor="bottom",
                 ),
                 margin=dict(t=110),
+                xaxis=dict(tickfont=dict(size=16)),
+                yaxis=dict(tickfont=dict(size=16)),
             )
             fig_corr.update_xaxes(tickprefix="R$ ")
             fig_corr.update_yaxes(tickprefix="R$ ")
@@ -968,8 +988,8 @@ with corr_right:
         if added > 0:
             fig_lines.update_layout(
                 title=dict(text="Tendências por tipo de cupom", x=0.05, font=dict(size=20), pad=dict(b=14)),
-                xaxis_title="Valor do cupom",
-                yaxis_title="Repasse Money BR",
+                xaxis_title=dict(text="Valor do cupom", font=dict(size=22)),
+                yaxis_title=dict(text="Repasse Money BR", font=dict(size=22)),
                 legend=dict(
                     orientation="h",
                     font=dict(size=14),
@@ -978,7 +998,9 @@ with corr_right:
                     xanchor="left",
                     yanchor="bottom",
                 ),
-                margin=dict(t=110)
+                margin=dict(t=110),
+                xaxis=dict(tickfont=dict(size=16)),
+                yaxis=dict(tickfont=dict(size=16)),
             )
             fig_lines.update_xaxes(tickprefix="R$ ")
             fig_lines.update_yaxes(tickprefix="R$ ")
