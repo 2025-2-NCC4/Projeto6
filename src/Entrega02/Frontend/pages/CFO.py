@@ -406,7 +406,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Opções de lojas
+# Estilos dos filtros
 
 st.markdown(
         """
@@ -438,6 +438,9 @@ st.markdown(
 """,
         unsafe_allow_html=True,
 )
+
+# Opções de lojas
+
 store_options = []
 if "nome_estabelecimento" in df.columns:
     store_options = sorted([s for s in df["nome_estabelecimento"].dropna().unique()])
@@ -834,18 +837,69 @@ st.markdown("""
     <div class="bar"></div>
     <div class="info-content-wrapper">
         <div class="info-text-col">
-            <div id="correlacoes" class="info-title"><i class="fa-solid fa-arrow-trend-up"></i> Correlações</div>
+            <div id="correlacoes" class="info-title">
+                <i class="fa-solid fa-arrow-trend-up"></i> Correlações 
+                <span 
+                    class="custom-tooltip-wrapper" 
+                    data-tooltip="Correlações medem o grau de relacionamento entre duas ou mais variáveis. Nesse painel, mostram como as tendências de diferentes métricas se movem juntas, ajudando a identificar padrões."
+                >
+                    <i class="fa-solid fa-circle-info"></i>
+                </span>
+            </div>
         </div>
     </div>
 </div>
 <style>
 .info-title {
-    color: #007031;
     font-size: 30px;
     font-family: Inter;
     font-weight: bold;
     margin-bottom: 2px;
+    cursor: help;
 }
+.custom-tooltip-wrapper::before {
+    content: attr(data-tooltip);
+    visibility: hidden;
+    opacity: 0;
+    background-color: #333;
+    color: #fff;
+    font-family: Inter, sans-serif;
+    font-size: 18px;
+    text-align: left;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 300px; 
+    white-space: normal;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    z-index: 1000;
+    left: 20%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s ease;
+}
+.custom-tooltip-wrapper::after {
+    content: "";
+    visibility: hidden;
+    opacity: 0;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+    position: absolute;
+    z-index: 1000;
+    bottom: 115%;
+    left: 20%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s ease;
+}
+.custom-tooltip-wrapper:hover::before,
+.custom-tooltip-wrapper:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+.custom-tooltip-wrapper i { 
+    color: inherit; 
+}
+        
 </style>
 """, unsafe_allow_html=True)
 
