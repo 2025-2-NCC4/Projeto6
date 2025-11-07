@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
 from styles.particles import inject_particles
-from Backend.pdf_generator import PDF
+from Backend.pdf_builder import build_cfo_pdf
 import base64
 
 # Configurações da página
@@ -834,8 +834,6 @@ with col_bairros:
     else:
         st.info("Nenhuma coluna de bairro encontrada para montar o gráfico.")
 
-# Correlações
-
 st.markdown("""
 <div class="info-section">
     <div class="bar"></div>
@@ -1068,48 +1066,151 @@ with corr_right:
     else:
         st.info("Colunas 'valor_cupom', 'repasse_picmoney' e/ou 'tipo_cupom' não encontradas.")
 
+# Botão de gerar PDF estilizado e centralizado
+st.markdown("""
+<style>
+.pdf-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+</style>
+""", unsafe_allow_html=True)
 
-
-if st.button("Gerar PDF"):
-    pdf = PDF()
-    pdf.alias_nb_pages()
-    pdf.add_page()
-    pdf.chapter_title('Relatório CFO')
-
-    # Filtros
-    pdf.chapter_title('Filtros Aplicados')
-    pdf.chapter_body(f"Lojas: {', '.join(selected_stores) if selected_stores else 'Todas'}")
-    pdf.chapter_body(f"Tipos de Cupom: {', '.join(selected_tipos) if selected_tipos else 'Todos'}")
-
-    pdf.add_page()
-    pdf.chapter_title('Gráficos')
-
-    # Gráficos
-    charts = {
-        "fig": fig, "fig2": fig2, "fig_l": fig_l, "fig_b": fig_b, "fig_corr": fig_corr, "fig_lines": fig_lines
-    }
-    
-    temp_dir = "/Users/pedrolemos/.gemini/tmp"
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-
-    chart_paths = []
-    for name, fig_obj in charts.items():
-        if fig_obj:
-            chart_path = os.path.join(temp_dir, f"{name}.png")
-            fig_obj.write_image(chart_path)
-            chart_paths.append(chart_path)
-
-    for i in range(0, len(chart_paths), 2):
-        if i + 1 < len(chart_paths):
-            pdf.add_two_charts(chart_paths[i], chart_paths[i+1])
-        else:
-            pdf.add_chart(chart_paths[i])
-
-    pdf_output = pdf.output(dest='S')
-    b64 = base64.b64encode(pdf_output).decode('utf-8')
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="relatorio_cfo.pdf">Download do PDF</a>'
-    st.markdown(href, unsafe_allow_html=True)
+# Container centralizado para o botão
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("📄 Gerar Relatório em PDF", use_container_width=True, type="primary"):
+        st.write("Gerando PDF com insights financeiros...")
+        
+        # Organiza os filtros
+        filtros = {
+            'lojas': selected_stores if selected_stores else store_options,
+            'tipos_cupom': selected_tipos if selected_tipos else tipo_options
+        }
+        
+        # Organiza os KPIs
+        kpis = {
+            'receita_total': receita_total,
+            'receita_moneybr': receita_moneybr,
+            'receita_liquida': receita_liquida,
+            'cupons_capturados': cupons_capturados,
+            'ticket_medio': ticket_medio,
+            'margem_operacional': margem_operacional,
+            'lojas_ativas': lojas_ativas,
+            'usuarios_ativos': usuarios_ativos
+        }
+        
+        # Organiza os dataframes necessários
+        dataframes = {}
+        
+        # Prepara dataframe de cupons por tipo para análise
+        if 'tipo_cupom' in df_cupons.columns:
+            cupons_tipo = df_cupons.copy()
+            if 'valor_cupom' in cupons_tipo.columns:
+                cupons_tipo['valor_num'] = _to_numeric_br(cupons_tipo['valor_cupom'])
+            else:
+                cupons_tipo['valor_num'] = 0
+            cupons_tipo_agg = (
+                cupons_tipo.groupby('tipo_cupom', as_index=False)
+                .agg({'valor_num': 'sum'})
+                .rename(columns={'valor_num': 'valor', 'tipo_cupom': 'Tipo'})
+                .sort_values('valor', ascending=False)
+            )
+            if not cupons_tipo_agg.empty:
+                dataframes['df_cupons_tipo'] = cupons_tipo_agg
+        
+        # Diretório temporário para gráficos
+        temp_dir = "/Users/pedrolemos/.gemini/tmp"
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        
+        chart_paths = {}
+        
+        # Salva os gráficos que foram criados
+        if 'fig' in locals() and fig:
+            chart_paths['fig_repasse_dia'] = os.path.join(temp_dir, "fig_repasse_dia.png")
+            fig.write_image(chart_paths['fig_repasse_dia'])
+        
+        if 'fig2' in locals() and fig2:
+            chart_paths['fig_cupons_dia'] = os.path.join(temp_dir, "fig_cupons_dia.png")
+            fig2.write_image(chart_paths['fig_cupons_dia'])
+        
+        if 'fig_l' in locals() and fig_l:
+            # Salva tanto para receita quanto para cupons (mesmo gráfico usado em diferentes contextos)
+            chart_paths['fig_lojas_receita'] = os.path.join(temp_dir, "fig_lojas_receita.png")
+            chart_paths['fig_top_lojas'] = os.path.join(temp_dir, "fig_top_lojas.png")
+            fig_l.write_image(chart_paths['fig_lojas_receita'])
+            fig_l.write_image(chart_paths['fig_top_lojas'])
+            # Prepara dataframe para análise
+            if 'agg' in locals():
+                dataframes['df_top_lojas_receita'] = agg
+        
+        if 'fig_b' in locals() and fig_b:
+            # Salva tanto para bairro quanto para cupons (mesmo gráfico usado em diferentes contextos)
+            chart_paths['fig_lojas_bairro'] = os.path.join(temp_dir, "fig_lojas_bairro.png")
+            chart_paths['fig_top_bairros'] = os.path.join(temp_dir, "fig_top_bairros.png")
+            fig_b.write_image(chart_paths['fig_lojas_bairro'])
+            fig_b.write_image(chart_paths['fig_top_bairros'])
+            if 'agg_b' in locals():
+                dataframes['df_lojas_bairro'] = agg_b
+        
+        if 'fig_corr' in locals() and fig_corr:
+            chart_paths['fig_correlacao'] = os.path.join(temp_dir, "fig_correlacao.png")
+            fig_corr.write_image(chart_paths['fig_correlacao'])
+            # Dados de correlação se disponíveis
+            if 'r' in locals():
+                dataframes['correlacao_valor'] = r
+            if 'corr_df' in locals():
+                dataframes['n_pontos'] = len(corr_df)
+        
+        if 'fig_lines' in locals() and fig_lines:
+            chart_paths['fig_tendencias'] = os.path.join(temp_dir, "fig_tendencias.png")
+            fig_lines.write_image(chart_paths['fig_tendencias'])
+        
+        # Gera o PDF com insights
+        try:
+            pdf_output = build_cfo_pdf(filtros, dataframes, chart_paths, temp_dir, kpis)
+            b64 = base64.b64encode(pdf_output).decode('utf-8')
+            
+            # Link de download estilizado
+            st.markdown(f"""
+            <style>
+            .download-container {{{{
+                display: flex;
+                justify-content: center;
+                margin: 30px 0;
+            }}}}
+            .download-link {{{{
+                background: linear-gradient(135deg, #56ac37 0%, #007031 100%);
+                color: white !important;
+                padding: 14px 40px;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 10px;
+                text-decoration: none;
+                box-shadow: 0 4px 12px rgba(86, 172, 55, 0.3);
+                transition: all 0.3s ease;
+                display: inline-block;
+            }}}}
+            .download-link:hover {{{{
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(86, 172, 55, 0.4);
+                text-decoration: none;
+            }}}}
+            </style>
+            <div class="download-container">
+                <a href="data:application/octet-stream;base64,{b64}" download="relatorio_cfo_completo.pdf" class="download-link">
+                    📥 Download do Relatório CFO
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.success("✅ PDF gerado com sucesso! Clique no botão acima para baixar.")
+        except Exception as e:
+            st.error(f"Erro ao gerar PDF: {e}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # Footer
 

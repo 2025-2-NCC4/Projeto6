@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
 from styles.particles import inject_particles
-from Backend.pdf_generator import PDF
+from Backend.pdf_builder import build_ceo_pdf
 import base64
 
 # Configurações da página
@@ -216,7 +216,6 @@ st.markdown("""
 
 
 
-st.write("Executing Volumetrias gerais")
 try:
     df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv", sep=';', encoding='MacRoman')
 
@@ -448,7 +447,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.write("Executing Dados demográficos")
 try:
 
      df_demo = load_csv("data/Base_Cadastral_de_Players.csv", sep=';', encoding='MacRoman')
@@ -664,7 +662,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.write("Executing Perfil dos clientes")
 try:
     df_paulista = load_csv("data/Base_Simulada_Pedestres_Av_Paulista.csv", sep=';', encoding='MacRoman')
 
@@ -968,51 +965,133 @@ st.session_state.charts["fig_modelo"] = fig_modelo
 st.session_state.charts["fig_horario"] = fig_horario
 st.session_state.charts["fig_local"] = fig_local
 
-if st.button("Gerar PDF"):
-    pdf = PDF()
-    st.write("Generating PDF")
-    pdf.alias_nb_pages()
-    pdf.add_page()
-    pdf.chapter_title('Relatório CEO')
+# Botão de gerar PDF estilizado e centralizado
+st.markdown("""
+<style>
+.pdf-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+.pdf-button {
+    background: linear-gradient(135deg, #007031 0%, #56ac37 100%);
+    color: white;
+    padding: 16px 48px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 112, 49, 0.3);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.pdf-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 112, 49, 0.4);
+}
+</style>
+""", unsafe_allow_html=True)
 
-    # Filtros
-    pdf.chapter_title('Filtros Aplicados')
-    pdf.chapter_body(f"Estabelecimentos: {', '.join(estabelecimentos_selecionados) if estabelecimentos_selecionados else 'Todos'}")
-    pdf.chapter_body(f"Categorias: {', '.join(categorias_selecionadas) if categorias_selecionadas else 'Todas'}")
-    pdf.chapter_body(f"Bairros: {', '.join(bairros_selecionados) if bairros_selecionados else 'Todos'}")
-
-    pdf.add_page()
-    pdf.chapter_title('Gráficos')
-
-    # Gráficos
-    charts = {
-        "fig_estab": fig_estab, "fig_cat": fig_cat, "fig_bairros": fig_bairros, "fig_cupons": fig_cupons,
-        "fig_cidade_res": fig_cidade_res, "fig_bairro_res": fig_bairro_res, "fig_cidade_trab": fig_cidade_trab,
-        "fig_bairro_trab": fig_bairro_trab, "fig_idade": fig_idade, "fig_gasto": fig_gasto, "fig_sexo": fig_sexo,
-        "fig_modelo": fig_modelo, "fig_horario": fig_horario, "fig_local": fig_local
-    }
-    
-    temp_dir = "/Users/pedrolemos/.gemini/tmp"
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-
-    chart_paths = []
-    for name, fig in charts.items():
-        if fig is not None:
-            chart_path = os.path.join(temp_dir, f"{name}.png")
-            fig.write_image(chart_path)
-            chart_paths.append(chart_path)
-
-    for i in range(0, len(chart_paths), 2):
-        if i + 1 < len(chart_paths):
-            pdf.add_two_charts(chart_paths[i], chart_paths[i+1])
-        else:
-            pdf.add_chart(chart_paths[i])
-
-    pdf_output = pdf.output(dest='S')
-    b64 = base64.b64encode(pdf_output).decode('utf-8')
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="relatorio_ceo.pdf">Download do PDF</a>'
-    st.markdown(href, unsafe_allow_html=True)
+# Container centralizado para o botão
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("📄 Gerar Relatório em PDF", use_container_width=True, type="primary"):
+        st.write("Gerando PDF com insights estratégicos...")
+        
+        # Preparar filtros
+        filtros = {
+            'estabelecimentos': estabelecimentos_selecionados if estabelecimentos_selecionados else [],
+            'categorias': categorias_selecionadas if categorias_selecionadas else [],
+            'bairros': bairros_selecionados if bairros_selecionados else []
+        }
+        
+        # Preparar dataframes
+        dataframes = {
+            'df_top_estabelecimentos': df_top_10_estab if 'df_top_10_estab' in locals() else pd.DataFrame(),
+            'df_top_categorias': df_top_10_cat if 'df_top_10_cat' in locals() else pd.DataFrame(),
+            'df_top_bairros': df_top_10_bairros if 'df_top_10_bairros' in locals() else pd.DataFrame(),
+            'df_cupons': df_top_10_cupons if 'df_top_10_cupons' in locals() else pd.DataFrame(),
+            'df_base': df_base if 'df_base' in locals() else pd.DataFrame(),
+            'df_cidade_res': cidade_res_counts if 'cidade_res_counts' in locals() else pd.DataFrame(),
+            'df_bairro_res': bairro_res_counts if 'bairro_res_counts' in locals() else pd.DataFrame(),
+            'df_cidade_trab': cidade_trab_counts if 'cidade_trab_counts' in locals() else pd.DataFrame(),
+            'df_bairro_trab': bairro_trab_counts if 'bairro_trab_counts' in locals() else pd.DataFrame(),
+            'df_paulista': df_paulista if 'df_paulista' in locals() else pd.DataFrame()
+        }
+        
+        # Salvar gráficos em arquivos temporários
+        temp_dir = "/Users/pedrolemos/.gemini/tmp"
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+        
+        chart_paths = {}
+        charts_to_save = {
+            "fig_estab": fig_estab,
+            "fig_cat": fig_cat,
+            "fig_bairros": fig_bairros,
+            "fig_cupons": fig_cupons,
+            "fig_cidade_res": fig_cidade_res,
+            "fig_bairro_res": fig_bairro_res,
+            "fig_cidade_trab": fig_cidade_trab,
+            "fig_bairro_trab": fig_bairro_trab,
+            "fig_idade": fig_idade,
+            "fig_gasto": fig_gasto,
+            "fig_sexo": fig_sexo,
+            "fig_modelo": fig_modelo,
+            "fig_horario": fig_horario,
+            "fig_local": fig_local
+        }
+        
+        for name, fig in charts_to_save.items():
+            if fig is not None:
+                chart_path = os.path.join(temp_dir, f"{name}.png")
+                fig.write_image(chart_path)
+                chart_paths[name] = chart_path
+        
+        # Gerar PDF com insights
+        try:
+            pdf_output = build_ceo_pdf(filtros, dataframes, chart_paths, temp_dir)
+            b64 = base64.b64encode(pdf_output).decode('utf-8')
+            
+            # Link de download estilizado
+            st.markdown(f"""
+            <style>
+            .download-container {{{{
+                display: flex;
+                justify-content: center;
+                margin: 30px 0;
+            }}}}
+            .download-link {{{{
+                background: linear-gradient(135deg, #56ac37 0%, #007031 100%);
+                color: white !important;
+                padding: 14px 40px;
+                font-size: 16px;
+                font-weight: bold;
+                border-radius: 10px;
+                text-decoration: none;
+                box-shadow: 0 4px 12px rgba(86, 172, 55, 0.3);
+                transition: all 0.3s ease;
+                display: inline-block;
+            }}}}
+            .download-link:hover {{{{
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(86, 172, 55, 0.4);
+                text-decoration: none;
+            }}}}
+            </style>
+            <div class="download-container">
+                <a href="data:application/octet-stream;base64,{b64}" download="relatorio_ceo_completo.pdf" class="download-link">
+                    📥 Download do Relatório CEO
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.success("✅ PDF gerado com sucesso! Clique no botão acima para baixar.")
+        except Exception as e:
+            st.error(f"Erro ao gerar PDF: {e}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # Footer
 
