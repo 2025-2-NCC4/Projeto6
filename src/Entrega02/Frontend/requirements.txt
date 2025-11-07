@@ -4,3 +4,4 @@ numpy
 plotly
 pyarrow
 streamlit-lottie
+fpdf2

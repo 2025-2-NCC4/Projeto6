@@ -3,10 +3,15 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
-from styles.particles import inject_particles  
- 
+from styles.particles import inject_particles
+from Backend.pdf_generator import PDF
+import base64
+
 # Configurações da página
 
 st.set_page_config(
@@ -21,7 +26,6 @@ inject_particles()
 
 # Utilitário de leitura com cache
 
-@st.cache_data(show_spinner="Carregando dados do CSV")
 def load_csv(path: str, sep: str = ';', encoding: str = 'MacRoman', **kwargs) -> pd.DataFrame:
     return pd.read_csv(path, sep=sep, encoding=encoding, **kwargs)
 
@@ -1063,6 +1067,49 @@ with corr_right:
             st.info("Dados insuficientes por tipo para traçar linhas de tendência.")
     else:
         st.info("Colunas 'valor_cupom', 'repasse_picmoney' e/ou 'tipo_cupom' não encontradas.")
+
+
+
+if st.button("Gerar PDF"):
+    pdf = PDF()
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    pdf.chapter_title('Relatório CFO')
+
+    # Filtros
+    pdf.chapter_title('Filtros Aplicados')
+    pdf.chapter_body(f"Lojas: {', '.join(selected_stores) if selected_stores else 'Todas'}")
+    pdf.chapter_body(f"Tipos de Cupom: {', '.join(selected_tipos) if selected_tipos else 'Todos'}")
+
+    pdf.add_page()
+    pdf.chapter_title('Gráficos')
+
+    # Gráficos
+    charts = {
+        "fig": fig, "fig2": fig2, "fig_l": fig_l, "fig_b": fig_b, "fig_corr": fig_corr, "fig_lines": fig_lines
+    }
+    
+    temp_dir = "/Users/pedrolemos/.gemini/tmp"
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+
+    chart_paths = []
+    for name, fig_obj in charts.items():
+        if fig_obj:
+            chart_path = os.path.join(temp_dir, f"{name}.png")
+            fig_obj.write_image(chart_path)
+            chart_paths.append(chart_path)
+
+    for i in range(0, len(chart_paths), 2):
+        if i + 1 < len(chart_paths):
+            pdf.add_two_charts(chart_paths[i], chart_paths[i+1])
+        else:
+            pdf.add_chart(chart_paths[i])
+
+    pdf_output = pdf.output(dest='S')
+    b64 = base64.b64encode(pdf_output).decode('utf-8')
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="relatorio_cfo.pdf">Download do PDF</a>'
+    st.markdown(href, unsafe_allow_html=True)
 
 # Footer
 
