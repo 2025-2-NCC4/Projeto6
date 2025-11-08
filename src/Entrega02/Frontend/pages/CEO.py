@@ -47,14 +47,14 @@ st.markdown("""
                 <a href="#volumetrias-gerais" class="nav-button">
                     <i class="fa-solid fa-chart-simple"></i> Volumetria geral
                 </a>
+                <a href="#dados-demograficos" class="nav-button">
+                    <i class="fa-solid fa-map-location-dot"></i> Dados demográficos
+                </a>
                 <a href="#perfil-dos-clientes" class="nav-button">
                     <i class="fa-solid fa-user"></i> Perfil dos clientes
                 </a>
                 <a href="#detalhamento-avenida-paulista" class="nav-button">
                     <i class="fa-solid fa-road"></i> Detalhamento: Avenida Paulista
-                </a>
-                <a href="#dados-demograficos" class="nav-button">
-                    <i class="fa-solid fa-map-location-dot"></i> Dados demográficos
                 </a>
             </div>
             <div class="info-description">
@@ -213,8 +213,6 @@ st.markdown("""
             
 </style>
 """, unsafe_allow_html=True)
-
-
 
 try:
     df = load_csv("data/Base_de_Transacoes_Cupons_Capturados.csv", sep=';', encoding='MacRoman')
@@ -1021,7 +1019,7 @@ with col2:
         }
         
         # Salvar gráficos em arquivos temporários
-        temp_dir = "/Users/pedrolemos/.gemini/tmp"
+        temp_dir = "/Users/guilhermefogolin/.gemini/tmp"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
         

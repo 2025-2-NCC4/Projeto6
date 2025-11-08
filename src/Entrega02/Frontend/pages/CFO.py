@@ -1078,6 +1078,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Container centralizado para o botão
+
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("📄 Gerar Relatório em PDF", use_container_width=True, type="primary"):
@@ -1121,7 +1122,7 @@ with col2:
                 dataframes['df_cupons_tipo'] = cupons_tipo_agg
         
         # Diretório temporário para gráficos
-        temp_dir = "/Users/pedrolemos/.gemini/tmp"
+        temp_dir = "/Users/guilhermefogolin/.gemini/tmp"
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
         
