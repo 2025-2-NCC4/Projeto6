@@ -8,7 +8,7 @@ class PDFEnhanced(FPDF):
         
     def header(self):
         # Logo
-        self.image('/Users/pedrolemos/FECAP/4semestre/money-br/imagens/moneybr-preto.png', 10, 8, 33)
+        self.image('/Users/guilhermefogolin/Downloads/mbr_preto.png', 10, 8, 33)
         
         # Título principal
         self.set_font('Arial', 'B', 18)

@@ -2,7 +2,7 @@ from fpdf import FPDF
 
 class PDF(FPDF):
     def header(self):
-        self.image('/Users/pedrolemos/FECAP/4semestre/money-br/imagens/moneybr-preto.png', 10, 8, 33)
+        self.image('/Users/guilhermefogolin/Downloads/mbr_preto.png', 10, 8, 33)
         self.set_font('Arial', 'B', 15)
         self.cell(80)
         self.cell(30, 10, 'Relatório MoneyBR', 0, 0, 'C')
