@@ -1089,7 +1089,7 @@ st.markdown("""
 st.markdown("""
 <style>
 .pdf-button-container {
-    margin: 0 60px 30px 60px;
+    margin: 0 60px 30px 60px !important;
 }
 .stButton > button {
     background-color: #007031 !important;
@@ -1101,7 +1101,7 @@ st.markdown("""
     color: #ffffff !important;
     transition: background-color 0.3s ease !important;
     width: auto !important;
-    margin: 0 !important;
+    margin: 0 60px 30px 60px !important;
     display: inline-block !important;
     min-width: 250px !important;
 }
@@ -1125,7 +1125,7 @@ st.markdown("""
 
 st.markdown('<div class="pdf-button-container">', unsafe_allow_html=True)
 if st.button("📄 Gerar Relatório em PDF"):
-        st.write("Gerando PDF com insights financeiros...")
+        st.markdown('<div style="margin: 0 60px 30px 60px;">Gerando PDF com insights financeiros...</div>', unsafe_allow_html=True)
         
         # Organiza os filtros
         filtros = {
@@ -1221,7 +1221,7 @@ if st.button("📄 Gerar Relatório em PDF"):
             .download-container {{{{
                 display: flex;
                 justify-content: flex-start;
-                margin: 30px 0;
+                margin: 0 60px 30px 60px !important;
             }}}}
             .download-link {{{{
                 background: linear-gradient(135deg, #56ac37 0%, #007031 100%);
@@ -1240,6 +1240,12 @@ if st.button("📄 Gerar Relatório em PDF"):
                 box-shadow: 0 6px 18px rgba(86, 172, 55, 0.4);
                 text-decoration: none;
             }}}}
+            .success-message {{{{
+                margin: 0 60px 30px 60px !important;
+            }}}}
+            .error-message {{{{
+                margin: 0 60px 30px 60px !important;
+            }}}}
             </style>
             <div class="download-container">
                 <a href="data:application/octet-stream;base64,{b64}" download="relatorio_cfo_completo.pdf" class="download-link">
@@ -1248,11 +1254,15 @@ if st.button("📄 Gerar Relatório em PDF"):
             </div>
             """, unsafe_allow_html=True)
             
+            st.markdown('<div class="success-message">', unsafe_allow_html=True)
             st.success("✅ PDF gerado com sucesso! Clique no botão acima para baixar.")
+            st.markdown('</div>', unsafe_allow_html=True)
         except Exception as e:
+            st.markdown('<div class="error-message">', unsafe_allow_html=True)
             st.error(f"Erro ao gerar PDF: {e}")
             import traceback
             st.code(traceback.format_exc())
+            st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
