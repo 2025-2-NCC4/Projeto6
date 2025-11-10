@@ -80,13 +80,27 @@ Além disso, há outras pastas com os devidos arquivos em cada período de entre
 
 ---
 
-## 🛠️ Tutoriais de instalação
+## 🛠️ Tutorial de instalação local
 
-- Para funcionamento completo da aplicação, deverá ser instalado previamente as dependências utilizadas nesse projeto. Para isso rode o comando abaixo no terminal:
+1️⃣ Instale o VS Code e Python;
+
+2️⃣ Clone o repositório;
+
+```
+git clone git@github.com:2025-2-NCC4/Projeto6.git
+```
+
+3️⃣ Instale as dependências utilizadas do projeto;
 ```shell
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install -r src/Entrega02/Frontend/requirements.txt
+```
+
+4️⃣ Por fim, rode o comando abaixo.
+
+```
+streamlit run Home.py
 ```
 
 ---
