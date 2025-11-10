@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import sys
 import os
+import tempfile
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
@@ -55,6 +56,9 @@ st.markdown("""
                 </a>
                 <a href="#detalhamento-avenida-paulista" class="nav-button">
                     <i class="fa-solid fa-road"></i> Detalhamento: Avenida Paulista
+                </a>
+                <a href="#relatorio-pdf" class="nav-button">
+                    <i class="fa-solid fa-file-pdf"></i> Relatório em PDF
                 </a>
             </div>
             <div class="info-description">
@@ -963,133 +967,155 @@ st.session_state.charts["fig_modelo"] = fig_modelo
 st.session_state.charts["fig_horario"] = fig_horario
 st.session_state.charts["fig_local"] = fig_local
 
-# Botão de gerar PDF estilizado e centralizado
+# Seção de Relatório em PDF
+st.markdown("""
+<div id="relatorio-pdf" class="info-section">
+    <div class="bar"></div>
+    <div class="info-content-wrapper">
+        <div class="info-text-col">
+            <div class="info-title"><i class="fa-solid fa-file-pdf"></i> Relatório em PDF</div>
+        </div>
+    </div>
+</div>
+<div class="filter-toolbar">
+    <div class="filter-title"><i class="fa-solid fa-circle-info"></i> Gere um relatório completo em PDF com todos os insights estratégicos baseado nos filtros que foram aplicados</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Estilização do botão para seguir o padrão do projeto
 st.markdown("""
 <style>
 .pdf-button-container {
-    display: flex;
-    justify-content: center;
-    margin: 40px 0;
+    margin: 0 60px 30px 60px;
 }
-.pdf-button {
-    background: linear-gradient(135deg, #007031 0%, #56ac37 100%);
-    color: white;
-    padding: 16px 48px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 112, 49, 0.3);
-    transition: all 0.3s ease;
-    text-align: center;
+.stButton > button {
+    background-color: #007031 !important;
+    border: none !important;
+    border-radius: 0.5rem !important;
+    padding: 0.65rem 1.25rem !important;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease !important;
+    width: auto !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    min-width: 250px !important;
 }
-.pdf-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 112, 49, 0.4);
+.stButton > button:hover {
+    background-color: #005824 !important;
+    border: none !important;
+}
+.stButton > button:active {
+    background-color: #00471a !important;
+    border: none !important;
+}
+.stButton > button:focus {
+    background-color: #007031 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Container centralizado para o botão
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    if st.button("📄 Gerar Relatório em PDF", use_container_width=True, type="primary"):
-        st.write("Gerando PDF com insights estratégicos...")
+# Container para o botão alinhado à esquerda
+st.markdown('<div class="pdf-button-container">', unsafe_allow_html=True)
+if st.button("📄 Gerar Relatório em PDF"):
+    st.write("Gerando PDF com insights estratégicos...")
+    
+    # Preparar filtros
+    filtros = {
+        'estabelecimentos': estabelecimentos_selecionados if estabelecimentos_selecionados else [],
+        'categorias': categorias_selecionadas if categorias_selecionadas else [],
+        'bairros': bairros_selecionados if bairros_selecionados else []
+    }
+    
+    # Preparar dataframes
+    dataframes = {
+        'df_top_estabelecimentos': df_top_10_estab if 'df_top_10_estab' in locals() else pd.DataFrame(),
+        'df_top_categorias': df_top_10_cat if 'df_top_10_cat' in locals() else pd.DataFrame(),
+        'df_top_bairros': df_top_10_bairros if 'df_top_10_bairros' in locals() else pd.DataFrame(),
+        'df_cupons': df_top_10_cupons if 'df_top_10_cupons' in locals() else pd.DataFrame(),
+        'df_base': df_base if 'df_base' in locals() else pd.DataFrame(),
+        'df_cidade_res': cidade_res_counts if 'cidade_res_counts' in locals() else pd.DataFrame(),
+        'df_bairro_res': bairro_res_counts if 'bairro_res_counts' in locals() else pd.DataFrame(),
+        'df_cidade_trab': cidade_trab_counts if 'cidade_trab_counts' in locals() else pd.DataFrame(),
+        'df_bairro_trab': bairro_trab_counts if 'bairro_trab_counts' in locals() else pd.DataFrame(),
+        'df_paulista': df_paulista if 'df_paulista' in locals() else pd.DataFrame()
+    }
+    
+    # Salvar gráficos em arquivos temporários
+    temp_dir = tempfile.mkdtemp(prefix='moneybr_charts_')
+    
+    chart_paths = {}
+    charts_to_save = {
+        "fig_estab": fig_estab,
+        "fig_cat": fig_cat,
+        "fig_bairros": fig_bairros,
+        "fig_cupons": fig_cupons,
+        "fig_cidade_res": fig_cidade_res,
+        "fig_bairro_res": fig_bairro_res,
+        "fig_cidade_trab": fig_cidade_trab,
+        "fig_bairro_trab": fig_bairro_trab,
+        "fig_idade": fig_idade,
+        "fig_gasto": fig_gasto,
+        "fig_sexo": fig_sexo,
+        "fig_modelo": fig_modelo,
+        "fig_horario": fig_horario,
+        "fig_local": fig_local
+    }
+    
+    for name, fig in charts_to_save.items():
+        if fig is not None:
+            chart_path = os.path.join(temp_dir, f"{name}.png")
+            fig.write_image(chart_path)
+            chart_paths[name] = chart_path
+    
+    # Gerar PDF com insights
+    try:
+        pdf_output = build_ceo_pdf(filtros, dataframes, chart_paths, temp_dir)
+        b64 = base64.b64encode(pdf_output).decode('utf-8')
         
-        # Preparar filtros
-        filtros = {
-            'estabelecimentos': estabelecimentos_selecionados if estabelecimentos_selecionados else [],
-            'categorias': categorias_selecionadas if categorias_selecionadas else [],
-            'bairros': bairros_selecionados if bairros_selecionados else []
-        }
+        # Link de download estilizado
+        st.markdown(f"""
+        <style>
+        .download-container {{{{
+            display: flex;
+            justify-content: flex-start;
+            margin: 30px 0;
+        }}}}
+        .download-link {{{{
+            background: linear-gradient(135deg, #56ac37 0%, #007031 100%);
+            color: white !important;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(86, 172, 55, 0.3);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }}}}
+        .download-link:hover {{{{
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(86, 172, 55, 0.4);
+            text-decoration: none;
+        }}}}
+        </style>
+        <div class="download-container">
+            <a href="data:application/octet-stream;base64,{b64}" download="relatorio_ceo_completo.pdf" class="download-link">
+                📥 Download do Relatório CEO
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Preparar dataframes
-        dataframes = {
-            'df_top_estabelecimentos': df_top_10_estab if 'df_top_10_estab' in locals() else pd.DataFrame(),
-            'df_top_categorias': df_top_10_cat if 'df_top_10_cat' in locals() else pd.DataFrame(),
-            'df_top_bairros': df_top_10_bairros if 'df_top_10_bairros' in locals() else pd.DataFrame(),
-            'df_cupons': df_top_10_cupons if 'df_top_10_cupons' in locals() else pd.DataFrame(),
-            'df_base': df_base if 'df_base' in locals() else pd.DataFrame(),
-            'df_cidade_res': cidade_res_counts if 'cidade_res_counts' in locals() else pd.DataFrame(),
-            'df_bairro_res': bairro_res_counts if 'bairro_res_counts' in locals() else pd.DataFrame(),
-            'df_cidade_trab': cidade_trab_counts if 'cidade_trab_counts' in locals() else pd.DataFrame(),
-            'df_bairro_trab': bairro_trab_counts if 'bairro_trab_counts' in locals() else pd.DataFrame(),
-            'df_paulista': df_paulista if 'df_paulista' in locals() else pd.DataFrame()
-        }
-        
-        # Salvar gráficos em arquivos temporários
-        temp_dir = "/Users/guilhermefogolin/.gemini/tmp"
-        if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
-        
-        chart_paths = {}
-        charts_to_save = {
-            "fig_estab": fig_estab,
-            "fig_cat": fig_cat,
-            "fig_bairros": fig_bairros,
-            "fig_cupons": fig_cupons,
-            "fig_cidade_res": fig_cidade_res,
-            "fig_bairro_res": fig_bairro_res,
-            "fig_cidade_trab": fig_cidade_trab,
-            "fig_bairro_trab": fig_bairro_trab,
-            "fig_idade": fig_idade,
-            "fig_gasto": fig_gasto,
-            "fig_sexo": fig_sexo,
-            "fig_modelo": fig_modelo,
-            "fig_horario": fig_horario,
-            "fig_local": fig_local
-        }
-        
-        for name, fig in charts_to_save.items():
-            if fig is not None:
-                chart_path = os.path.join(temp_dir, f"{name}.png")
-                fig.write_image(chart_path)
-                chart_paths[name] = chart_path
-        
-        # Gerar PDF com insights
-        try:
-            pdf_output = build_ceo_pdf(filtros, dataframes, chart_paths, temp_dir)
-            b64 = base64.b64encode(pdf_output).decode('utf-8')
-            
-            # Link de download estilizado
-            st.markdown(f"""
-            <style>
-            .download-container {{{{
-                display: flex;
-                justify-content: center;
-                margin: 30px 0;
-            }}}}
-            .download-link {{{{
-                background: linear-gradient(135deg, #56ac37 0%, #007031 100%);
-                color: white !important;
-                padding: 14px 40px;
-                font-size: 16px;
-                font-weight: bold;
-                border-radius: 10px;
-                text-decoration: none;
-                box-shadow: 0 4px 12px rgba(86, 172, 55, 0.3);
-                transition: all 0.3s ease;
-                display: inline-block;
-            }}}}
-            .download-link:hover {{{{
-                transform: translateY(-2px);
-                box-shadow: 0 6px 18px rgba(86, 172, 55, 0.4);
-                text-decoration: none;
-            }}}}
-            </style>
-            <div class="download-container">
-                <a href="data:application/octet-stream;base64,{b64}" download="relatorio_ceo_completo.pdf" class="download-link">
-                    📥 Download do Relatório CEO
-                </a>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.success("✅ PDF gerado com sucesso! Clique no botão acima para baixar.")
-        except Exception as e:
-            st.error(f"Erro ao gerar PDF: {e}")
-            import traceback
-            st.code(traceback.format_exc())
+        st.success("✅ PDF gerado com sucesso! Clique no botão acima para baixar.")
+    except Exception as e:
+        st.error(f"Erro ao gerar PDF: {e}")
+        import traceback
+        st.code(traceback.format_exc())
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
 

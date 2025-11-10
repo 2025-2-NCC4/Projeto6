@@ -1,8 +1,12 @@
 from fpdf import FPDF
+import os
 
 class PDF(FPDF):
     def header(self):
-        self.image('/Users/guilhermefogolin/Downloads/mbr_preto.png', 10, 8, 33)
+        # Caminho relativo para a logo
+        logo_path = os.path.join(os.path.dirname(__file__), '..', 'Frontend', 'assets', 'mbr_branco.png')
+        if os.path.exists(logo_path):
+            self.image(logo_path, 10, 8, 33)
         self.set_font('Arial', 'B', 15)
         self.cell(80)
         self.cell(30, 10, 'Relatório MoneyBR', 0, 0, 'C')

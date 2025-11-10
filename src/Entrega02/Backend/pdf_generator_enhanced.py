@@ -1,5 +1,6 @@
 from fpdf import FPDF
 from datetime import datetime
+import os
 
 class PDFEnhanced(FPDF):
     def __init__(self, report_type="CEO"):
@@ -7,8 +8,10 @@ class PDFEnhanced(FPDF):
         self.report_type = report_type
         
     def header(self):
-        # Logo
-        self.image('/Users/guilhermefogolin/Downloads/mbr_preto.png', 10, 8, 33)
+        # Logo usando caminho relativo
+        logo_path = os.path.join(os.path.dirname(__file__), '..', 'Frontend', 'assets', 'mbr_branco.png')
+        if os.path.exists(logo_path):
+            self.image(logo_path, 10, 8, 33)
         
         # Título principal
         self.set_font('Arial', 'B', 18)

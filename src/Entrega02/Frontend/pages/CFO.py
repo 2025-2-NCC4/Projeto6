@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import sys
 import os
+import tempfile
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from styles.footer import inject_footer
 from styles.main import inject_global_styles
@@ -123,6 +124,9 @@ st.markdown("""
                 </a>
                 <a href="#correlacoes" class="nav-button">
                     <i class="fa-solid fa-arrow-trend-up"></i> Correlações
+                </a>
+                <a href="#relatorio-pdf" class="nav-button">
+                    <i class="fa-solid fa-file-pdf"></i> Relatório em PDF
                 </a>
             </div>
             <div class="info-description">
@@ -1066,22 +1070,61 @@ with corr_right:
     else:
         st.info("Colunas 'valor_cupom', 'repasse_picmoney' e/ou 'tipo_cupom' não encontradas.")
 
-# Botão de gerar PDF estilizado e centralizado
+# Seção de Relatório em PDF
+st.markdown("""
+<div id="relatorio-pdf" class="info-section">
+    <div class="bar"></div>
+    <div class="info-content-wrapper">
+        <div class="info-text-col">
+            <div class="info-title"><i class="fa-solid fa-file-pdf"></i> Relatório em PDF</div>
+        </div>
+    </div>
+</div>
+<div class="filter-toolbar">
+    <div class="filter-title"><i class="fa-solid fa-circle-info"></i> Gere um relatório completo em PDF com todos os insights financeiros baseado nos filtros aplicados aos dados da página.</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Estilização do botão para seguir o padrão do projeto
 st.markdown("""
 <style>
 .pdf-button-container {
-    display: flex;
-    justify-content: center;
-    margin: 40px 0;
+    margin: 0 60px 30px 60px;
+}
+.stButton > button {
+    background-color: #007031 !important;
+    border: none !important;
+    border-radius: 0.5rem !important;
+    padding: 0.65rem 1.25rem !important;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease !important;
+    width: auto !important;
+    margin: 0 !important;
+    display: inline-block !important;
+    min-width: 250px !important;
+}
+.stButton > button:hover {
+    background-color: #005824 !important;
+    border: none !important;
+}
+.stButton > button:active {
+    background-color: #00471a !important;
+    border: none !important;
+}
+.stButton > button:focus {
+    background-color: #007031 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Container centralizado para o botão
+# Container para o botão alinhado à esquerda
 
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    if st.button("📄 Gerar Relatório em PDF", use_container_width=True, type="primary"):
+st.markdown('<div class="pdf-button-container">', unsafe_allow_html=True)
+if st.button("📄 Gerar Relatório em PDF"):
         st.write("Gerando PDF com insights financeiros...")
         
         # Organiza os filtros
@@ -1122,9 +1165,7 @@ with col2:
                 dataframes['df_cupons_tipo'] = cupons_tipo_agg
         
         # Diretório temporário para gráficos
-        temp_dir = "/Users/guilhermefogolin/.gemini/tmp"
-        if not os.path.exists(temp_dir):
-            os.makedirs(temp_dir)
+        temp_dir = tempfile.mkdtemp(prefix='moneybr_charts_')
         
         chart_paths = {}
         
@@ -1179,7 +1220,7 @@ with col2:
             <style>
             .download-container {{{{
                 display: flex;
-                justify-content: center;
+                justify-content: flex-start;
                 margin: 30px 0;
             }}}}
             .download-link {{{{
@@ -1212,6 +1253,8 @@ with col2:
             st.error(f"Erro ao gerar PDF: {e}")
             import traceback
             st.code(traceback.format_exc())
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer
 
