@@ -968,6 +968,7 @@ st.session_state.charts["fig_horario"] = fig_horario
 st.session_state.charts["fig_local"] = fig_local
 
 # Seção de Relatório em PDF
+
 st.markdown("""
 <div id="relatorio-pdf" class="info-section">
     <div class="bar"></div>
@@ -983,6 +984,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Estilização do botão para seguir o padrão do projeto
+
 st.markdown("""
 <style>
 .pdf-button-container {
@@ -1019,6 +1021,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Container para o botão alinhado à esquerda
+
 st.markdown('<div class="pdf-button-container">', unsafe_allow_html=True)
 if st.button("📄 Gerar Relatório em PDF"):
     st.write("Gerando PDF com insights estratégicos...")
