@@ -11,7 +11,6 @@ def inject_footer():
                 <a href="http://localhost:8501/" class="footer-link" target="_self">Home</a>
                 <a href="http://localhost:8501/CEO" class="footer-link" target="_self">CEO</a>
                 <a href="http://localhost:8501/CFO" class="footer-link" target="_self">CFO</a>
-                <a href="http://localhost:8501/Sobre" class="footer-link" target="_self">Sobre</a>
             </div>
             <div class="footer-copy">Copyright © 2025 - 2025 <span class="footer-title-main">MONEY </span><span class="footer-title-green">BR</span></div>
         </div>
