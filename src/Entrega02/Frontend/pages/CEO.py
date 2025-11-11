@@ -27,7 +27,10 @@ inject_particles()
 # Leitura de dados com cache
 
 def load_csv(path: str, sep: str = ';', encoding: str = 'MacRoman', **kwargs) -> pd.DataFrame:
-    return pd.read_csv(path, sep=sep, encoding=encoding, **kwargs)
+    # Constrói caminho absoluto baseado na localização deste arquivo
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    full_path = os.path.join(base_dir, path)
+    return pd.read_csv(full_path, sep=sep, encoding=encoding, **kwargs)
 
 # Seção de informações
 
