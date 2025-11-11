@@ -80,6 +80,12 @@ Além disso, há outras pastas com os devidos arquivos em cada período de entre
 
 ---
 
+## 💻 Versão final
+
+Para acessar a versão final da Money BR, siga o link: [Dashboard publicado](https://moneybr.streamlit.app/).
+
+---
+
 ## 🛠️ Tutorial de instalação local
 
 1️⃣ Instale o VS Code e Python;
